@@ -127,6 +127,20 @@ public class Model extends Observable {
         return false;
     }
 
+    public boolean movable(int c, int r, Tile t) {
+        if (board.tile(c, r) == null ||
+                (board.tile(c, r).value() == t.value() &&
+                        !isFixed(board.tile(c, r)))) {
+            return true;
+        }
+        return false;
+    }
+    public void merge(int c, int r, Tile t) {
+        if (board.move(c, r, t)) { // if merged
+            score += board.tile(c, r).value();
+            fix(c, r); // this (c, r) is fixed and cannot be merged again
+        }
+    }
     public boolean tilt(Side side) {
         boolean changed;
         changed = false;
@@ -139,19 +153,11 @@ public class Model extends Observable {
 
         for (int c = 0; c < board.size(); c++) { // every column
             for (int r = board.size() - 2; r >= 0; r--) { // from up to down
-
                 Tile thisTile = board.tile(c, r);
-
                 if (thisTile != null) {
                     for(int targetR = board.size() - 1; targetR > r; targetR--) { // all upper tiles from upmost
-                        Tile targetTile = board.tile(c, targetR); // target location
-
-                        if (!isBlocked(r, targetR, c) && // do
-                                (targetTile == null || (targetTile.value() == thisTile.value() && !isFixed(targetTile)))) {
-                            if (board.move(c, targetR, thisTile)) {
-                                score += board.tile(c, targetR).value();
-                                fix(c, targetR); // this (c, r) is fixed and cannot be merged again
-                            }
+                        if (!isBlocked(r, targetR, c) && movable(c, targetR, thisTile)) { // can move
+                            merge(c, targetR, thisTile);
                             changed = true;
                             break; // no more for this tile
                         }
@@ -160,8 +166,10 @@ public class Model extends Observable {
             }
         }
         fixedTile = null; // clean up tile fixed information, start over next time newly
+
         board.setViewingPerspective(Side.NORTH);
         checkGameOver();
+
         if (changed) {
             setChanged();
         }
