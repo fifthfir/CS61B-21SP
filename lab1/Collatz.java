@@ -2,8 +2,7 @@
  *  @author Rain Zhang
  */
 public class Collatz {
-
-    /** Buggy implementation of nextNumber! */
+    /** next number if 1 return 0 */
     public static int nextNumber(int n) {
         int ret = 0;
         if (n % 2 == 0) {
