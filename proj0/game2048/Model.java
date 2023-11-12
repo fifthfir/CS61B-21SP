@@ -116,14 +116,15 @@ public class Model extends Observable {
         return false;
     }
 
-    public void resetFixed() {
-        for (int c = 0; c < board.size(); c++) {
-            for (int r = 0; r < board.size(); r++) {
-                if (board.tile(c, r) != null) {
-                    board.tile(c, r).isFixed = false;
-                }
-            }
+    private Tile fixedTile;
+    public void fix(int c, int r) {
+        fixedTile = board.tile(c, r);
+    }
+    public boolean isFixed(Tile t) {
+        if (fixedTile == t) {
+            return true;
         }
+        return false;
     }
 
     public boolean tilt(Side side) {
@@ -145,10 +146,10 @@ public class Model extends Observable {
                     Tile targetTile = board.tile(c, targetR); // target location
 
                     if (thisTile != null && !isBlocked(r, targetR, c) &&
-                            (targetTile == null || (targetTile.value() == thisTile.value() && !targetTile.isFixed))) {
+                            (targetTile == null || (targetTile.value() == thisTile.value() && !isFixed(targetTile)))) {
                         if (board.move(c, targetR, thisTile)) {
                             score += board.tile(c, targetR).value();
-                            board.tile(c, targetR).isFixed = true; // this (col, row) is fixed and cannot be merged again
+                            fix(c, targetR); // this (col, row) is fixed and cannot be merged again
                         }
                         thisTile = null;
                         changed = true;
@@ -156,8 +157,7 @@ public class Model extends Observable {
                 }
             }
         }
-
-        resetFixed(); // clean up tile fixed information, start over next time newly
+        fixedTile = null; // clean up tile fixed information, start over next time newly
         board.setViewingPerspective(Side.NORTH);
         checkGameOver();
         if (changed) {
