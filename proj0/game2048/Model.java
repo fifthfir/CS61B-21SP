@@ -142,17 +142,19 @@ public class Model extends Observable {
 
                 Tile thisTile = board.tile(c, r);
 
-                for(int targetR = board.size() - 1; targetR > r; targetR--) { // all upper tiles from upmost
-                    Tile targetTile = board.tile(c, targetR); // target location
+                if (thisTile != null) {
+                    for(int targetR = board.size() - 1; targetR > r; targetR--) { // all upper tiles from upmost
+                        Tile targetTile = board.tile(c, targetR); // target location
 
-                    if (thisTile != null && !isBlocked(r, targetR, c) &&
-                            (targetTile == null || (targetTile.value() == thisTile.value() && !isFixed(targetTile)))) {
-                        if (board.move(c, targetR, thisTile)) {
-                            score += board.tile(c, targetR).value();
-                            fix(c, targetR); // this (col, row) is fixed and cannot be merged again
+                        if (!isBlocked(r, targetR, c) && // do
+                                (targetTile == null || (targetTile.value() == thisTile.value() && !isFixed(targetTile)))) {
+                            if (board.move(c, targetR, thisTile)) {
+                                score += board.tile(c, targetR).value();
+                                fix(c, targetR); // this (c, r) is fixed and cannot be merged again
+                            }
+                            changed = true;
+                            break; // no more for this tile
                         }
-                        thisTile = null;
-                        changed = true;
                     }
                 }
             }
