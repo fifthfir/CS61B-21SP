@@ -19,6 +19,7 @@ public class Tile {
     public int row() {
         return row;
     }
+    public boolean isFixed = false;
 
     /** Return my current column. */
     public int col() {

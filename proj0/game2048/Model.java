@@ -5,7 +5,7 @@ import java.util.Observable;
 
 
 /** The state of a game of 2048.
- *  @author Rain Zhang
+ *  @author TODO: YOUR NAME HERE
  */
 public class Model extends Observable {
     /** Current contents of the board. */
@@ -106,6 +106,26 @@ public class Model extends Observable {
      *    value, then the leading two tiles in the direction of motion merge,
      *    and the trailing tile does not.
      * */
+    public boolean isBlocked(int thisR, int targetR, int c) {
+        for (int betweenR = thisR+1; betweenR < targetR; betweenR++) {
+            Tile blockTile = board.tile(c, betweenR);
+            if (blockTile != null) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public void resetFixed() {
+        for (int c = 0; c < board.size(); c++) {
+            for (int r = 0; r < board.size(); r++) {
+                if (board.tile(c, r) != null) {
+                    board.tile(c, r).isFixed = false;
+                }
+            }
+        }
+    }
+
     public boolean tilt(Side side) {
         boolean changed;
         changed = false;
@@ -114,6 +134,31 @@ public class Model extends Observable {
         // for the tilt to the Side SIDE. If the board changed, set the
         // changed local variable to true.
 
+        board.setViewingPerspective(side);
+
+        for (int c = 0; c < board.size(); c++) { // every column
+            for (int r = board.size() - 2; r >= 0; r--) { // from up to down
+
+                Tile thisTile = board.tile(c, r);
+
+                for(int targetR = board.size() - 1; targetR > r; targetR--) { // all upper tiles from upmost
+                    Tile targetTile = board.tile(c, targetR); // target location
+
+                    if (thisTile != null && !isBlocked(r, targetR, c) &&
+                            (targetTile == null || (targetTile.value() == thisTile.value() && !targetTile.isFixed))) {
+                        if (board.move(c, targetR, thisTile)) {
+                            score += board.tile(c, targetR).value();
+                            board.tile(c, targetR).isFixed = true; // this (col, row) is fixed and cannot be merged again
+                        }
+                        thisTile = null;
+                        changed = true;
+                    }
+                }
+            }
+        }
+
+        resetFixed(); // clean up tile fixed information, start over next time newly
+        board.setViewingPerspective(Side.NORTH);
         checkGameOver();
         if (changed) {
             setChanged();
@@ -137,7 +182,14 @@ public class Model extends Observable {
      *  Empty spaces are stored as null.
      * */
     public static boolean emptySpaceExists(Board b) {
-        // TODO: Fill in this function.
+        int size = b.size();
+        for (int i = 0; i < size; i++) {
+            for (int j = 0; j < size; j++) {
+                if (b.tile(i, j) == null) {
+                    return true;
+                }
+            }
+        }
         return false;
     }
 
@@ -147,7 +199,15 @@ public class Model extends Observable {
      * given a Tile object t, we get its value with t.value().
      */
     public static boolean maxTileExists(Board b) {
-        // TODO: Fill in this function.
+        int size = b.size();
+        for (int i = 0; i < size; i++) {
+            for (int j = 0; j < size; j++) {
+                Tile tile = b.tile(i, j);
+                if (tile != null && tile.value() == MAX_PIECE) {
+                    return true;
+                }
+            }
+        }
         return false;
     }
 
@@ -158,7 +218,34 @@ public class Model extends Observable {
      * 2. There are two adjacent tiles with the same value.
      */
     public static boolean atLeastOneMoveExists(Board b) {
-        // TODO: Fill in this function.
+        if (emptySpaceExists(b)) {
+            return true;
+        }else {
+            int size = b.size();
+            for (int i = 0; i < size; i++) {
+                for (int j = 0; j < size; j++) { // every tile (not null)
+                    int tileValue = b.tile(i, j).value();
+                    int[] adjacent = {j - 1, j + 1, i + 1, i - 1};
+
+                    for (int n = 0; n < adjacent.length; n++) {
+                        int loc = adjacent[n]; // every four direction
+
+                        if (loc >= 0 && loc < size) { // available locations
+                            int valueUp = 0;
+
+                            if (n < 2) { // up and down, i fixed
+                                valueUp = b.tile(i, loc).value();
+                            } else { // left and right, j fixed
+                                valueUp = b.tile(loc, j).value();
+                            }
+                            if (tileValue == valueUp) {
+                                return true;
+                            }
+                        }
+                    }
+                }
+            }
+        }
         return false;
     }
 
