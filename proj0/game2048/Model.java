@@ -95,7 +95,7 @@ public class Model extends Observable {
     }
 
     /** Tilt the board toward SIDE. Return true iff this changes the board.
-     *
+
      * 1. If two Tile objects are adjacent in the direction of motion and have
      *    the same value, they are merged into one Tile of twice the original
      *    value and that new value is added to the score instance variable
@@ -121,19 +121,13 @@ public class Model extends Observable {
         fixedTile = board.tile(c, r);
     }
     public boolean isFixed(Tile t) {
-        if (fixedTile == t) {
-            return true;
-        }
-        return false;
+        return fixedTile == t;
     }
 
     public boolean movable(int c, int r, Tile t) {
-        if (board.tile(c, r) == null ||
+        return board.tile(c, r) == null ||
                 (board.tile(c, r).value() == t.value() &&
-                        !isFixed(board.tile(c, r)))) {
-            return true;
-        }
-        return false;
+                        !isFixed(board.tile(c, r)));
     }
     public void merge(int c, int r, Tile t) {
         if (board.move(c, r, t)) { // if merged
@@ -261,7 +255,7 @@ public class Model extends Observable {
 
 
     @Override
-     /** Returns the model as a string, used for debugging. */
+    /** Returns the model as a string, used for debugging. */
     public String toString() {
         Formatter out = new Formatter();
         out.format("%n[%n");
