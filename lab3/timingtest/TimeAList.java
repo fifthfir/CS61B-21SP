@@ -37,7 +37,7 @@ public class TimeAList {
         AList lstTimes = new AList();
         AList lstOps = new AList();
 
-        for (int i = 1000; i <= 10000000; i *= 2) {
+        for (int i = 1000; i <= 128000; i *= 2) {
             lstN.addLast(i);
             lstTimes.addLast(timeEveryAList(i));
             lstOps.addLast(i);
