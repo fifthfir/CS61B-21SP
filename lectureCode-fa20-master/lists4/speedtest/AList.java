@@ -32,7 +32,7 @@ public class AList {
     /** Inserts X into the back of the list. */
     public void addLast(int x) {
         if (size == items.length) {
-            resize(size + 100);
+            resize(size * 2);
         }
 
         items[size] = x;
@@ -58,6 +58,12 @@ public class AList {
     public int removeLast() {
         int x = getLast();
         size = size - 1;
+        return x;
+    }
+    public int removeIdx(int i) {
+        int x = get(i);
+        size = size - 1;
+        System.arraycopy(this, i+1, this, i, size - i);
         return x;
     }
 } 
