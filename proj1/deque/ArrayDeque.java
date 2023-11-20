@@ -61,8 +61,9 @@ public class ArrayDeque<T> implements Deque<T> {
         if (isEmpty()) {
             return null;
         }
-        T ret = items[nextFirst + 1];
-        items[nextFirst + 1] = null;
+        nextFirst++;
+        T ret = items[nextFirst];
+        items[nextFirst] = null;
         size--;
         return ret;
     }
@@ -72,8 +73,9 @@ public class ArrayDeque<T> implements Deque<T> {
         if (isEmpty()) {
             return null;
         }
-        T ret = items[nextLast - 1];
-        items[nextLast - 1] = null;
+        nextLast--;
+        T ret = items[nextLast];
+        items[nextLast] = null;
         size--;
         return ret;
     }

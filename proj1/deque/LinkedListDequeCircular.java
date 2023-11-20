@@ -27,8 +27,8 @@ public class LinkedListDequeCircular<T> implements Deque<T> {
             newNode.next = oldFrontNode;
             newNode.prev = sentinel;
             sentinel.next = newNode;
-            size++;
         }
+        size++;
     }
     // Adds an item of type T to the back of the deque.
     public void addLast(T item) {
@@ -58,7 +58,7 @@ public class LinkedListDequeCircular<T> implements Deque<T> {
     // print out a new line.
     public void printDeque() {
         Node curNode = sentinel.next;
-        while (curNode != null) {
+        while (curNode.item != null) {
             System.out.print(curNode.item + " ");
             curNode = curNode.next;
         }
