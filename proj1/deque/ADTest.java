@@ -38,6 +38,13 @@ public class ADTest {
         L.addLast(36);
         assert (99 == L.get(0));
         assert (36 == L.get(1));
+        L.addLast(92);
+        L.addLast(93);
+        L.addLast(94);
+        L.addLast(95);
+        L.addLast(96);
+        L.addLast(97);
+        assert (97 == L.get(7));
     }
 
 
@@ -52,5 +59,15 @@ public class ADTest {
         L.addLast(100);
         assert (100 == L.removeLast());
         assertEquals(1, L.size());
+        L.addLast(92);
+        L.addLast(93);
+        L.addLast(94);
+        L.addLast(95);
+        L.addLast(96);
+        L.addLast(97);
+        L.addLast(98);
+        assert (98 == L.removeLast());
+        L.addLast(98);
+        assert (99 == L.removeFirst());
     }
 }
