@@ -1,23 +1,23 @@
 package deque;
 
 public class ArrayDeque<T> implements Deque<T> {
-    private T[] items;
-    private int size;
-    private int nextFirst;
-    private int nextLast;
+    public T[] items;
+    public int size;
+    public int nextFirst;
+    public int nextLast;
     public ArrayDeque() {
         items = (T[]) new Object[8];
         size = 0;
         nextFirst = 3;
         nextLast = 4;
     }
-    // Adds an item of type T to the front of the deque.
     public void resize() {
         T[] a = (T[]) new Object[size * 2];
         System.arraycopy(items, 0, a, 0, nextLast);
         System.arraycopy(items, nextFirst + 1, a, nextLast + size, size - nextLast);
         items = a;
     }
+    // Adds an item of type T to the front of the deque.
     public void addFirst(T item) {
         if (size == items.length) {
             resize();
@@ -61,7 +61,7 @@ public class ArrayDeque<T> implements Deque<T> {
         if (isEmpty()) {
             return null;
         }
-        nextFirst++;
+        nextFirst = (nextFirst+1) % items.length;
         T ret = items[nextFirst];
         items[nextFirst] = null;
         size--;
@@ -73,7 +73,7 @@ public class ArrayDeque<T> implements Deque<T> {
         if (isEmpty()) {
             return null;
         }
-        nextLast--;
+        nextLast =  (nextLast-1) % items.length;
         T ret = items[nextLast];
         items[nextLast] = null;
         size--;
