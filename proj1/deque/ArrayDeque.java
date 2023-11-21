@@ -83,7 +83,7 @@ public class ArrayDeque<T> implements Deque<T> {
     // 1 is the next item, and so forth. If no such item exists,
     // returns null. Must not alter the deque!
     public T get(int index) {
-        return items[nextFirst + 1 + index];
+        return items[(nextFirst + 1 + index) % items.length];
     }
     // public Iterator<T> iterator() {
     // }

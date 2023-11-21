@@ -15,7 +15,7 @@ public class LinkedListDequeCircularTest {
 
         System.out.println("Make sure to uncomment the lines below (and delete this print statement).");
 
-        LinkedListDequeCircular<String> lld1 = new LinkedListDequeCircular<String>();
+        LinkedListDequeCircular<String> lld1 = new LinkedListDequeCircular<>();
 
         assertTrue("A newly initialized LLDeque should be empty", lld1.isEmpty());
         lld1.addFirst("front");
@@ -35,12 +35,12 @@ public class LinkedListDequeCircularTest {
         lld1.printDeque();
     }
     @Test
-    /** Adds an item, then removes an item, and ensures that dll is empty afterwards. */
+    /* Adds an item, then removes an item, and ensures that dll is empty afterward. */
     public void addRemoveTest() {
 
         System.out.println("Make sure to uncomment the lines below (and delete this print statement).");
 
-        LinkedListDequeCircular<Integer> lld1 = new LinkedListDequeCircular<Integer>();
+        LinkedListDequeCircular<Integer> lld1 = new LinkedListDequeCircular<>();
         // should be empty
         assertTrue("lld1 should be empty upon initialization", lld1.isEmpty());
 
@@ -79,9 +79,9 @@ public class LinkedListDequeCircularTest {
     public void multipleParamTest() {
 
 
-        LinkedListDequeCircular<String>  lld1 = new LinkedListDequeCircular<String>();
-        LinkedListDequeCircular<Double>  lld2 = new LinkedListDequeCircular<Double>();
-        LinkedListDequeCircular<Boolean> lld3 = new LinkedListDequeCircular<Boolean>();
+        LinkedListDequeCircular<String>  lld1 = new LinkedListDequeCircular<>();
+        LinkedListDequeCircular<Double>  lld2 = new LinkedListDequeCircular<>();
+        LinkedListDequeCircular<Boolean> lld3 = new LinkedListDequeCircular<>();
 
         lld1.addFirst("string");
         lld2.addFirst(3.14159);
@@ -90,7 +90,6 @@ public class LinkedListDequeCircularTest {
         String s = lld1.removeFirst();
         double d = lld2.removeFirst();
         boolean b = lld3.removeFirst();
-
     }
 
     @Test
@@ -99,7 +98,7 @@ public class LinkedListDequeCircularTest {
 
         System.out.println("Make sure to uncomment the lines below (and delete this print statement).");
 
-        LinkedListDequeCircular<Integer> lld1 = new LinkedListDequeCircular<Integer>();
+        LinkedListDequeCircular<Integer> lld1 = new LinkedListDequeCircular<>();
 
         boolean passed1 = false;
         boolean passed2 = false;
@@ -115,7 +114,7 @@ public class LinkedListDequeCircularTest {
 
         System.out.println("Make sure to uncomment the lines below (and delete this print statement).");
 
-        LinkedListDequeCircular<Integer> lld1 = new LinkedListDequeCircular<Integer>();
+        LinkedListDequeCircular<Integer> lld1 = new LinkedListDequeCircular<>();
         for (int i = 0; i < 1000000; i++) {
             lld1.addLast(i);
         }

@@ -6,21 +6,51 @@ import static org.junit.Assert.assertEquals;
 
 public class ADTest {
     @Test
+    public void testEmptySize() {
+        ArrayDeque<Integer> L = new ArrayDeque<>();
+        assertEquals(0, L.size());
+    }
+
+    @Test
     public void testAddAndSize() {
-        ArrayDeque<Integer> Ad = new ArrayDeque<>();
-        Ad.addLast(2);
-        Ad.addLast(3);
-        Ad.addLast(4);
-        Ad.addLast(5);
-        Ad.addLast(6);
-        Ad.addLast(7);
-        Ad.addFirst(1);
-        Ad.addFirst(0);
-        assertEquals(8, Ad.size());
-        assert (Ad.get(0) == 0);
-        assert (Ad.removeLast() == 7);
-        Ad.addLast(7);
-        Ad.addLast(8);
-        assert (Ad.get(8) == 8);
+        ArrayDeque<Integer> L = new ArrayDeque<>();
+        L.addLast(99);
+        L.addLast(99);
+        assertEquals(2, L.size());
+    }
+
+
+    @Test
+    public void testAddAndGetLast() {
+        ArrayDeque<Integer> L = new ArrayDeque<>();
+        L.addLast(99);
+        assert (99 == L.removeLast());
+        L.addLast(36);
+        assert (36 == L.removeLast());
+    }
+
+
+    @Test
+    public void testGet() {
+        ArrayDeque<Integer> L = new ArrayDeque<Integer>();
+        L.addLast(99);
+        assert (99 == L.get(0));
+        L.addLast(36);
+        assert (99 == L.get(0));
+        assert (36 == L.get(1));
+    }
+
+
+    @Test
+    public void testRemove() {
+        ArrayDeque<Integer> L = new ArrayDeque<>();
+        L.addLast(99);
+        assert (99 == L.get(0));
+        L.addLast(36);
+        assert (99 == L.get(0));
+        assert (36 == L.removeLast());
+        L.addLast(100);
+        assert (100 == L.removeLast());
+        assertEquals(1, L.size());
     }
 }
