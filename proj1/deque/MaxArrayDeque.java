@@ -3,11 +3,9 @@ package deque;
 import java.util.Comparator;
 
 public class MaxArrayDeque<T> extends ArrayDeque<T> {
+
     public MaxArrayDeque(Comparator<T> c) { // constructor is not inherited
-        items = (T[]) new Object[8];
-        size = 0;
-        nextFirst = 3;
-        nextLast = 4;
+        super();
     }
     /*
     public T max() {

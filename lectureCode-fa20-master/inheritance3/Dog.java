@@ -7,7 +7,6 @@ public class Dog implements Comparable<Dog> {
         size = s;
     }
 
-    @Override
     public int compareTo(Dog uddaDog) {
         //assume nobody is messing up and giving us
         //something that isn't a dog.

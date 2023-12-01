@@ -95,25 +95,37 @@ public class ArraySet<T> implements Iterable<T> {
 
     @Override
     public boolean equals(Object other) {
-        if (this == other) {
-            return true;
-        }
-        if (other == null) {
-            return false;
-        }
-        if (other.getClass() != this.getClass()) {
-            return false;
-        }
-        ArraySet<T> o = (ArraySet<T>) other;
-        if (o.size() != this.size()) {
-            return false;
-        }
-        for (T item : this) {
-            if (!o.contains(item)) {
+//        if (this == other) {  // for efficiency
+//            return true;
+//        }
+//        if (other == null) {
+//            return false;
+//        }
+//        if (other.getClass() != this.getClass()) {
+//            return false;
+//        }
+//        ArraySet<T> o = (ArraySet<T>) other;
+//        if (o.size() != this.size()) {
+//            return false;
+//        }
+//        for (T item : this) {
+//            if (!o.contains(item)) {
+//                return false;
+//            }
+//        }
+//        return true;
+        if (other instanceof ArraySet oas) {
+            if (oas.size != this.size) {
                 return false;
             }
+            for (T x: this) {
+                if (!oas.contains(x)) {
+                    return false;
+                }
+            }
+            return true;
         }
-        return true;
+        return false;
     }
 
     public static void main(String[] args) {
