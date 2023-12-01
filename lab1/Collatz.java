@@ -4,8 +4,8 @@
 public class Collatz {
     /** next number if 1 return 0 */
     public static int nextNumber(int n) {
-        if (n % 2 == 0) {
-            return n / 2;
+        if (n%2 == 0) {
+            return n/2;
         } else {
             return n * 3 + 1;
         }
