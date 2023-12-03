@@ -15,14 +15,21 @@ public class ArrayDeque<T> implements Deque<T>, Iterable<T> {
     }
     private void resizeUp() {
         T[] a = (T[]) new Object[items.length * 2];
-        System.arraycopy(items, 0, a, 0, nextLast);
-        System.arraycopy(items, nextLast, a, nextLast + items.length, items.length - nextLast);
+        if (nextLast > nextFirst) {
+            System.arraycopy(items, 0, a, 0, nextLast);
+            System.arraycopy(items, nextLast, a, nextLast + items.length, items.length - nextLast);
+            nextLast = nextFirst + 1;
+            nextFirst = nextLast + size - 1;
+        } else {
+            System.arraycopy(items, 0, a, 0, nextFirst);
+            System.arraycopy(items, nextFirst, a, nextFirst + items.length, items.length - nextFirst);
+            nextLast = nextFirst + size() - 1;
+        }
         items = a;
-        nextLast = nextFirst + 1;
-        nextFirst = nextLast + size - 1;
+
     }
     private void resizeDown() {
-        T[] a = (T[]) new Object[items.length / 3 * 2];
+        T[] a = (T[]) new Object[items.length / 3 * 2 + 1];
         if (nextFirst < nextLast) {
             System.arraycopy(items, nextFirst, a, 0, size + 1);
             nextFirst = 0;
@@ -61,11 +68,6 @@ public class ArrayDeque<T> implements Deque<T>, Iterable<T> {
         }
         size++;
     }
-//     Returns true if deque is empty, false otherwise.
-//    @Override
-//    public boolean isEmpty() {
-//        return size == 0;
-//    }
     // Returns the number of items in the deque.
     @Override
     public int size() {
@@ -134,13 +136,13 @@ public class ArrayDeque<T> implements Deque<T>, Iterable<T> {
         }
         @Override
         public boolean hasNext() {
-             return position < size;
+            return position < size;
         }
         @Override
         public T next() {
-             T retuanItem = items[position];
-             position += 1;
-             return retuanItem;
+            T retuanItem = items[position];
+            position += 1;
+            return retuanItem;
         }
     }
     public boolean equals(Object o) {

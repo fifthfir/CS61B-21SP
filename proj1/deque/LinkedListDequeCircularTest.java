@@ -92,8 +92,8 @@ public class LinkedListDequeCircularTest {
 
         boolean passed1 = false;
         boolean passed2 = false;
-        assertEquals("Should return null when removeFirst is called on an empty Deque,", null, lld1.removeFirst());
-        assertEquals("Should return null when removeLast is called on an empty Deque,", null, lld1.removeLast());
+        assertEquals("Should return null", null, lld1.removeFirst());
+        assertEquals("Should return null", null, lld1.removeLast());
 
 
     }

@@ -51,24 +51,24 @@ public class ADTest {
     @Test
     public void testRemove() {
         ArrayDeque<Integer> L = new ArrayDeque<>();
-        L.addLast(99);
-        assert (99 == L.get(0));
-        L.addLast(36);
-        assert (99 == L.get(0));
-        assert (36 == L.removeLast());
-        L.addLast(100);
-        assert (100 == L.removeLast());
-        assertEquals(1, L.size());
-        L.addLast(92);
-        L.addLast(93);
-        L.addLast(94);
-        L.addLast(95);
-        L.addLast(96);
-        L.addLast(97);
-        L.addLast(98);
-        assert (98 == L.removeLast());
-        L.addLast(98);
-        assert (99 == L.removeFirst());
+        L.addFirst(0);
+        L.addFirst(1);
+        L.addLast(2);
+        L.addLast(3);
+        L.removeFirst();
+        L.addLast(5);
+        L.addLast(6);
+        L.removeFirst();
+        L.get(0);
+        L.get(2);
+        L.removeLast();
+        L.removeFirst();
+        L.removeLast();
+        L.addFirst(13);
+        L.get(1);
+        L.addFirst(15);
+        assert L.removeLast() == 3;
+
     }
     @Test
     public void testResize() {
