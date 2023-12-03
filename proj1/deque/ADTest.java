@@ -206,7 +206,7 @@ public class ADTest {
         L.addLast(1);
         L.addLast(2);
         assert L.removeFirst() == 0;
-        assert L.removeFirst()== 1;
+        assert L.removeFirst() == 1;
         L.addLast(5);
     }
     @Test
