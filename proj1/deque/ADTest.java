@@ -107,17 +107,17 @@ public class ADTest {
     public void testRemove2() {
         ArrayDeque<Integer> L = new ArrayDeque<>();
         L.addLast(0);
-        L.removeFirst();
+        assert L.removeFirst() == 0;
         L.addLast(2);
-        L.removeLast();
+        assert L.removeLast() == 2;
         L.addFirst(4);
         L.addFirst(5);
-        L.removeFirst();
-        L.removeFirst();
+        assert L.removeFirst() == 5;
+        assert L.removeFirst() == 4;
         L.addFirst(8);
-        L.removeLast();
+        assert L.removeLast() == 8;
         L.addFirst(10);
-        L.removeFirst();
+        assert L.removeFirst() == 10;
         L.addLast(12);
         L.removeFirst();
         L.addLast(14);
