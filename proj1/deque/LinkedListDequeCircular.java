@@ -2,10 +2,10 @@ package deque;
 
 public class LinkedListDequeCircular<T> implements Deque<T> {
     private class Node {
-        public T item;
-        public Node next;
-        public Node prev;
-        public Node(T i) {
+        private T item;
+        private Node next;
+        private Node prev;
+        Node(T i) {
             item = i;
         }
     }
@@ -126,10 +126,4 @@ public class LinkedListDequeCircular<T> implements Deque<T> {
         }
         return getRecursiveNode(n.next, index - 1);
     }
-    // public Iterator<T> iterator() {
-
-    // }
-    // public boolean equals(Object o) {
-
-    // }
 }

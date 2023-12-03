@@ -77,13 +77,11 @@ public class ADTest {
             L.addLast(i);
         }
         assert (L.size() == 10);
-        assert (L.getLength() == 16);
 
         for (int i = 0; i < 8; i++) {
             L.removeLast();
         }
         assert (L.size() == 2);
-        assert (L.getLength() == 4);
     }
     @Test
     public void testResize2() {
@@ -92,7 +90,6 @@ public class ADTest {
             L.addLast(i);
         }
         assert (L.size() == 10);
-        assert (L.getLength() == 16);
 
         for (int i = 0; i < 4; i++) {
             L.removeLast();

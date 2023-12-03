@@ -3,7 +3,7 @@ package gh2;
 import deque.ArrayDeque;
 import deque.Deque;
 
-public class Drum implements Instrument{
+public class Drum implements Instrument {
     private static final int SR = 44100;      // Sampling Rate
     private static final double DECAY = 1.0; // energy decay factor
     private Deque<Double> buffer;

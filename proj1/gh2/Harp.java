@@ -3,7 +3,7 @@ package gh2;
 import deque.ArrayDeque;
 import deque.Deque;
 
-public class Harp implements Instrument{
+public class Harp implements Instrument {
     private static final int SR = 44100;      // Sampling Rate
     private static final double DECAY = .996; // energy decay factor
     private Deque<Double> buffer;
@@ -25,7 +25,7 @@ public class Harp implements Instrument{
     @Override
     public void tic() {
         double front = buffer.removeFirst();
-        double toAddLast = - (front + buffer.get(0)) * DECAY * 0.5;
+        double toAddLast = -(front + buffer.get(0)) * DECAY * 0.5;
         buffer.addLast(toAddLast);
     }
     @Override

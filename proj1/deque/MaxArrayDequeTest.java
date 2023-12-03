@@ -7,7 +7,7 @@ import java.util.Comparator;
 import static org.junit.Assert.*;
 
 public class MaxArrayDequeTest {
-    public class MyComparator implements Comparator<String> {
+    public static class MyComparator implements Comparator<String> {
         public int compare(String a, String b) {
             if (a.compareTo(b) > 0) {
                 return 1;
