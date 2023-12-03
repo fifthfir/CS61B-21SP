@@ -4,22 +4,24 @@ import java.util.Comparator;
 
 public class MaxArrayDeque<T> extends ArrayDeque<T> {
 
+    private Comparator<T> c;
     public MaxArrayDeque(Comparator<T> c) { // constructor is not inherited
-        super();
+        this.c = c;
     }
-    /*
+
     public T max() {
-        if (size == 0) {
+        return max(c);
+    }
+    public T max(Comparator<T> com) {
+        if (isEmpty()) {
             return null;
         }
-
-    }
-    public T max(Comparator<T> c) {
-        if (size == 0) {
-            return null;
+        T maxValue = get(0);
+        for (int i = 0; i < size(); i++) {
+            if (com.compare(get(i), maxValue) > 0) {
+                maxValue = get(i);
+            }
         }
-
+        return maxValue;
     }
-
-     */
 }
