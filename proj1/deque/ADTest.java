@@ -199,4 +199,46 @@ public class ADTest {
         L.addLast(16);
         assert L.removeFirst() == 13;
     }
+    @Test
+    public void testRemove6() {
+        ArrayDeque<Integer> L = new ArrayDeque<>();
+        L.addLast(0);
+        L.addLast(1);
+        L.addLast(2);
+        assert L.removeFirst() == 0;
+        assert L.removeFirst()== 1;
+        L.addLast(5);
+    }
+    @Test
+    public void testRemove7() {
+        ArrayDeque<Integer> L = new ArrayDeque<>();
+        L.addLast(0);
+        assert L.removeFirst() == 0;
+        L.addFirst(2);
+        assert L.get(0) == 2;
+        assert L.get(0) == 2;
+        assert L.get(0) == 2;
+        assert L.removeFirst() == 2;
+        L.addLast(7);
+        L.addFirst(8);
+        assert L.removeFirst() == 8;
+        assert L.get(0) == 7;
+        assert L.removeLast() == 7;
+        L.addLast(12);
+        L.addLast(13);
+        assert L.removeFirst() == 12;
+        assert L.get(0) == 13;
+        L.addLast(16);
+    }
+    @Test
+    public void testRemove8() {
+        ArrayDeque<Integer> L = new ArrayDeque<>();
+        L.addLast(0);
+        L.addLast(1);
+        assert L.removeFirst() == 0;
+        L.addFirst(3);
+        assert L.removeLast() == 1;
+        assertFalse(L.isEmpty());
+        L.addLast(6);
+    }
 }
