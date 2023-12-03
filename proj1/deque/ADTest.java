@@ -10,7 +10,6 @@ public class ADTest {
         ArrayDeque<Integer> L = new ArrayDeque<>();
         assertEquals(0, L.size());
     }
-
     @Test
     public void testAddAndSize() {
         ArrayDeque<Integer> L = new ArrayDeque<>();
@@ -18,8 +17,6 @@ public class ADTest {
         L.addLast(99);
         assertEquals(2, L.size());
     }
-
-
     @Test
     public void testAddAndGetLast() {
         ArrayDeque<Integer> L = new ArrayDeque<>();
@@ -28,8 +25,6 @@ public class ADTest {
         L.addLast(36);
         assert (36 == L.removeLast());
     }
-
-
     @Test
     public void testGet() {
         ArrayDeque<Integer> L = new ArrayDeque<Integer>();
@@ -46,8 +41,6 @@ public class ADTest {
         L.addLast(97);
         assert (97 == L.get(7));
     }
-
-
     @Test
     public void testRemove() {
         ArrayDeque<Integer> L = new ArrayDeque<>();
@@ -109,5 +102,101 @@ public class ADTest {
             M.addLast(i);
         }
         assert (L.equals(M));
+    }
+    @Test
+    public void testRemove2() {
+        ArrayDeque<Integer> L = new ArrayDeque<>();
+        L.addLast(0);
+        L.removeFirst();
+        L.addLast(2);
+        L.removeLast();
+        L.addFirst(4);
+        L.addFirst(5);
+        L.removeFirst();
+        L.removeFirst();
+        L.addFirst(8);
+        L.removeLast();
+        L.addFirst(10);
+        L.removeFirst();
+        L.addLast(12);
+        L.removeFirst();
+        L.addLast(14);
+        L.addLast(15);
+        L.addFirst(16);
+        L.addLast(17);
+        L.addLast(18);
+        L.addLast(19);
+        L.addFirst(20);
+        assert L.get(6) == 19;
+    }
+    @Test
+    public void testRemove3() {
+        ArrayDeque<Integer> L = new ArrayDeque<>();
+        L.addLast(0);
+        L.removeFirst();
+        L.addLast(2);
+        L.removeLast();
+        L.addFirst(4);
+        L.addFirst(5);
+        L.removeFirst();
+        L.removeFirst();
+        L.addFirst(8);
+        L.removeLast();
+        L.addFirst(10);
+        L.removeFirst();
+        L.addLast(12);
+        L.removeFirst();
+        L.addLast(14);
+        L.addLast(15);
+        L.addFirst(16);
+        L.addLast(17);
+        L.addLast(18);
+        L.addLast(19);
+        L.addFirst(20);
+        assert L.get(6) == 19;
+    }
+    @Test
+    public void testRemove4() {
+        ArrayDeque<Integer> L = new ArrayDeque<>();
+        L.addFirst(0);
+        assert L.get(0) == 0;
+        L.addFirst(2);
+        assert L.get(1) == 0;
+        L.removeFirst();
+        assert L.get(0) == 0;
+        L.addFirst(6);
+        assert L.removeFirst() == 6;
+        assert L.removeLast() == 0;
+        L.addFirst(9);
+        L.addFirst(10);
+        L.addFirst(11);
+        assert L.removeLast() == 9;
+        L.addFirst(13);
+        L.addLast(14);
+        assert L.removeLast() == 14;
+        L.addLast(16);
+        assert L.removeFirst() == 13;
+    }
+    @Test
+    public void testRemove5() {
+        ArrayDeque<Integer> L = new ArrayDeque<>();
+        L.addFirst(0);
+        assert L.get(0) == 0;
+        L.addFirst(2);
+        assert L.get(1) == 0;
+        assert L.removeFirst() == 2;
+        assert L.get(0) == 0;
+        L.addFirst(6);
+        assert L.removeFirst() == 6;
+        assert L.removeLast() == 0;
+        L.addFirst(9);
+        L.addFirst(10);
+        L.addFirst(11);
+        assert L.removeLast() == 9;
+        L.addFirst(13);
+        L.addLast(14);
+        assert L.removeLast() == 14;
+        L.addLast(16);
+        assert L.removeFirst() == 13;
     }
 }

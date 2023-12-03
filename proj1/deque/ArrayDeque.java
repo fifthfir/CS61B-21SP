@@ -15,14 +15,18 @@ public class ArrayDeque<T> implements Deque<T>, Iterable<T> {
     }
     private void resizeUp() {
         T[] a = (T[]) new Object[items.length * 2];
-        if (nextLast > nextFirst) {
+        if (nextFirst == size - 1) {
             System.arraycopy(items, 0, a, 0, nextLast);
             System.arraycopy(items, nextLast, a, nextLast + items.length, items.length - nextLast);
-            nextLast = nextFirst + 1;
+        } else if (nextLast > nextFirst) {
+            System.arraycopy(items, 0, a, 0, nextLast);
+            System.arraycopy(items, nextLast, a, nextLast + items.length, items.length - nextLast);
+            nextLast = nextFirst % (size - 1) + 1;
             nextFirst = nextLast + size - 1;
         } else {
             System.arraycopy(items, 0, a, 0, nextFirst);
-            System.arraycopy(items, nextFirst, a, nextFirst + items.length, items.length - nextFirst);
+            System.arraycopy(
+                    items, nextFirst, a, nextFirst + items.length, items.length - nextFirst);
             nextLast = nextFirst + size() - 1;
         }
         items = a;
@@ -134,25 +138,31 @@ public class ArrayDeque<T> implements Deque<T>, Iterable<T> {
         ArrayDequeIterator() {
             position = 0;
         }
-        @Override
         public boolean hasNext() {
             return position < size;
         }
-        @Override
         public T next() {
-            T retuanItem = items[position];
-            position += 1;
-            return retuanItem;
+            T returnItem = (T) get(position);
+            position++;
+            return returnItem;
         }
     }
     public boolean equals(Object o) {
-        if (o instanceof ArrayDeque) {
-            ArrayDeque odq = (ArrayDeque) o;
+        if (this == o) {
+            return true;
+        }
+        if (o == null) {
+            return false;
+        }
+        if (o instanceof Deque) {
+            Deque<T> odq = (Deque<T>) o;
             if (odq.size() != this.size()) {
                 return false;
             }
             for (int i = 0; i < odq.size(); i++) {
-                if (odq.get(i) != this.get(i)) {
+                T item1 = get(i);
+                T item2 = odq.get(i);
+                if (!item1.equals(item2)) {
                     return false;
                 }
             }
