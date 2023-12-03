@@ -100,4 +100,17 @@ public class ADTest {
         }
         assert (L.size() == 2);
     }
+    @Test
+    public void testEquals() {
+        ArrayDeque<Integer> L = new ArrayDeque<>();
+        for (int i = 0; i < 10; i++) {
+            L.addLast(i);
+        }
+
+        ArrayDeque<Integer> M = new ArrayDeque<>();
+        for (int i = 0; i < 10; i++) {
+            M.addLast(i);
+        }
+        assert (L.equals(M));
+    }
 }

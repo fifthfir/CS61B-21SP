@@ -146,7 +146,8 @@ public class ArrayDeque<T> implements Deque<T> {
          }
      }
      public boolean equals(Object o) {
-         if (o instanceof ArrayDeque odq) {
+         if (o instanceof ArrayDeque) {
+             ArrayDeque odq = (ArrayDeque) o;
              if (odq.size() != this.size()) {
                  return false;
              }
