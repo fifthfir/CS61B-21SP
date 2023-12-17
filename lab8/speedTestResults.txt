@@ -1,0 +1,29 @@
+ This program inserts random Strings of length L
+ Into different types of maps as <String, Integer> pairs.
+
+What would you like L to be?: 5999
+
+Enter # strings to insert into hashmap.ULLMap: fgs
+Please enter a positive integer: 453
+class hashmap.ULLMap: 0.03 sec
+
+Enter # strings to insert into your hashmap.MyHashMap: ghdgh
+Please enter a positive integer: 67564
+class hashmap.MyHashMap: 3.35 sec
+
+Enter # strings to insert into Java's HashMap: sdfgs
+Please enter a positive integer: 4525
+Java's Built-in HashMap: 0.21 sec
+
+ This program inserts random Strings of length L
+ Into different types of maps as <String, Integer> pairs.
+
+What would you like L to be?: 5000
+
+Enter # strings to insert into each map: husky
+Please enter a positive integer: 567
+class hashmap.MyHashMapALBuckets: 0.03 sec
+class hashmap.MyHashMapLLBuckets: 0.03 sec
+class hashmap.MyHashMapTSBuckets: 0.03 sec
+class hashmap.MyHashMapHSBuckets: 0.02 sec
+class hashmap.MyHashMapPQBuckets: 0.03 sec
