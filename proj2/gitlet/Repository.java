@@ -26,4 +26,28 @@ public class Repository {
     public static final File GITLET_DIR = join(CWD, ".gitlet");
 
     /* TODO: fill in the rest of this class. */
+
+    /**
+     * TODO: create other things we need in .gitlet directory
+     * .gitlet
+     *     initialCommit
+     * TODO: if fail
+     */
+    public static void init() {
+        GITLET_DIR.mkdir();
+        Commit initialCommit = new Commit();
+        File initialCommitFile = join(GITLET_DIR, "initialCommit");
+        writeObject(initialCommitFile, initialCommit);
+        // Branches: master, and point it to initial commit
+        // what is UID?
+    }
+    public void commit() {
+        // Read from computer [the head commit object] and [the staging area]
+
+        // Clone the HEAD commit
+        // Modify its message and timestamp according to user input
+        // Use the staging area in order to modify the files tracked by the new commit
+
+        // Write back new objects made or any modified objects created earlier
+    }
 }
