@@ -1,7 +1,10 @@
 package gitlet;
 
 import java.io.File;
+import java.nio.file.Files;
+
 import static gitlet.Utils.*;
+import static java.lang.System.exit;
 
 // TODO: any imports you need here
 
@@ -24,24 +27,34 @@ public class Repository {
     public static final File CWD = new File(System.getProperty("user.dir"));
     /** The .gitlet directory. */
     public static final File GITLET_DIR = join(CWD, ".gitlet");
+    public static final File COMMIT_DIR = join(GITLET_DIR, "commit");
 
     /* TODO: fill in the rest of this class. */
 
     /**
-     * TODO: create other things we need in .gitlet directory
-     * .gitlet
-     *     initialCommit
-     * TODO: if fail
+     * TODO: branch
      */
     public static void init() {
-        GITLET_DIR.mkdir();
-        Commit initialCommit = new Commit();
-        File initialCommitFile = join(GITLET_DIR, "initialCommit");
-        writeObject(initialCommitFile, initialCommit);
-        // Branches: master, and point it to initial commit
-        // what is UID?
+        boolean initialExists = COMMIT_DIR.exists();
+        
+        if (!initialExists) {
+            GITLET_DIR.mkdir();
+            COMMIT_DIR.mkdir();
+            Commit initialCommit = new Commit();
+            String id = sha1(serialize(initialCommit));
+
+            File initialCommitFile = join(COMMIT_DIR, id);
+            writeObject(initialCommitFile, initialCommit);
+
+        } else {
+            System.out.println("A Gitlet version-control system already exists in the current directory.");
+            exit(0);
+        }
     }
-    public void commit() {
+    public static void add() {
+
+    }
+    public static void commit() {
         // Read from computer [the head commit object] and [the staging area]
 
         // Clone the HEAD commit

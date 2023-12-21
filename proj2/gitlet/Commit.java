@@ -25,17 +25,13 @@ public class Commit implements Serializable {
     /** The message of this Commit. */
     private String message;
     private Instant timestamp;
-    // track id
 
     // Treating string as pointer, to avoid file too large or runtime to long
     private String parent;
 
     /* TODO: fill in the rest of this class. */
 
-    /**
-     * TODO: Construct
-     * initialize: message, parent, timestamp
-     */
+    // Construct
     public Commit() {
         this.parent = null;
         this.message = "initial commit";

@@ -25,6 +25,7 @@ public class Main {
             exit(0);
         }
         String firstArg = args[0];
+        // TODO: all of other commands
         switch(firstArg) {
             case "init":
                 // TODO: handle the `init` command
@@ -34,11 +35,13 @@ public class Main {
             case "add":
                 // TODO: handle the `add [filename]` command
                 checkArgsNums(args, 2);
+                Repository.add();
                 break;
             // TODO: FILL THE REST IN
             case "commit":
                 // TODO: handle the `commit [message]` command
                 checkArgsNums(args, 2);
+                Repository.commit();
                 break;
             case "rm":
                 // TODO: handle the `rm [filename]` command
