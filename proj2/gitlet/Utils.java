@@ -18,6 +18,9 @@ import java.util.Arrays;
 import java.util.Formatter;
 import java.util.List;
 
+import static gitlet.Repository.OBJECTS_DIR;
+import static java.lang.System.exit;
+
 
 /** Assorted utilities.
  *
@@ -31,7 +34,7 @@ class Utils {
     /** The length of a complete SHA-1 UID as a hexadecimal numeral. */
     static final int UID_LENGTH = 40;
 
-    /* SHA-1 HASH VALUES. */
+    // ---------------------------------/* SHA-1 HASH VALUES. */ ---------------------------------------
 
     /** Returns the SHA-1 hash of the concatenation of VALS, which may
      *  be any mixture of byte arrays and Strings. */
@@ -63,7 +66,7 @@ class Utils {
         return sha1(vals.toArray(new Object[vals.size()]));
     }
 
-    /* FILE DELETION */
+    // ---------------------------------/* FILE DELETION */ -------------------------------------
 
     /** Deletes FILE if it exists and is not a directory.  Returns true
      *  if FILE was deleted, and false otherwise.  Refuses to delete FILE
@@ -88,7 +91,7 @@ class Utils {
         return restrictedDelete(new File(file));
     }
 
-    /* READING AND WRITING FILE CONTENTS */
+    // --------------------------/* READING AND WRITING FILE CONTENTS */ -------------------------------
 
     /** Return the entire contents of FILE as a byte array.  FILE must
      *  be a normal file.  Throws IllegalArgumentException
@@ -157,7 +160,7 @@ class Utils {
         writeContents(file, serialize(obj));
     }
 
-    /* DIRECTORIES */
+    // -------------------------- /* DIRECTORIES */ -------------------------------------
 
     /** Filter out all but plain files. */
     private static final FilenameFilter PLAIN_FILES =
@@ -222,7 +225,7 @@ class Utils {
 
 
 
-    /* MESSAGES AND ERROR REPORTING */
+    // ----------------------- /* MESSAGES AND ERROR REPORTING */ -----------------------
 
     /** Return a GitletException whose message is composed from MSG and ARGS as
      *  for the String.format method. */
@@ -235,5 +238,18 @@ class Utils {
     static void message(String msg, Object... args) {
         System.out.printf(msg, args);
         System.out.println();
+    }
+
+    // -------------------------- /* SELFMADE */ ------------------------------------
+    static void saveObjectToFile(File cwp, Serializable obj) {
+        File objFile = join(cwp, getId(obj));
+        writeObject(objFile, obj);
+    }
+    static void exitWString(String info) {
+        System.out.println(info);
+        exit(0);
+    }
+    static String getId(Serializable obj) {
+        return sha1(serialize(obj));
     }
 }

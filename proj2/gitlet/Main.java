@@ -1,7 +1,9 @@
 package gitlet;
 
 import java.io.File;
+import java.io.IOException;
 
+import static gitlet.Utils.exitWString;
 import static java.lang.System.exit;
 
 /** Driver class for Gitlet, a subset of the Git version-control system.
@@ -14,15 +16,13 @@ public class Main {
      */
     private static void checkArgsNums(String[] args, int targetNum) {
         if (args.length != targetNum) {
-            System.out.println("Incorrect operands.");
-            exit(0);
+            exitWString("Incorrect operands.");
         }
     }
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
         // TODO: what if args is empty?
         if (args.length == 0) {
-            System.out.println("Please enter a command.");
-            exit(0);
+            exitWString("Please enter a command.");
         }
         String firstArg = args[0];
         // TODO: all of other commands
@@ -35,13 +35,13 @@ public class Main {
             case "add":
                 // TODO: handle the `add [filename]` command
                 checkArgsNums(args, 2);
-                Repository.add();
+                Repository.add(args[1]);
                 break;
             // TODO: FILL THE REST IN
             case "commit":
                 // TODO: handle the `commit [message]` command
                 checkArgsNums(args, 2);
-                Repository.commit();
+                Repository.commit(args[1]);
                 break;
             case "rm":
                 // TODO: handle the `rm [filename]` command
@@ -89,8 +89,7 @@ public class Main {
                 // TODO: handle the `pull [remote name] [remote branch name]` command
                 break;
             default:
-                System.out.println("No command with that name exists.");
-                exit(0);
+                exitWString("No command with that name exists.");
         }
     }
 }

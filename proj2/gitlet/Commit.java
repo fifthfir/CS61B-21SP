@@ -5,7 +5,12 @@ package gitlet;
 import java.io.File;
 import java.io.Serializable;
 import java.time.*;
+import java.util.ArrayList;
 import java.util.Date; // TODO: You'll likely use this in this class
+import java.util.HashMap;
+import java.util.List;
+
+import static gitlet.Utils.getId;
 
 /** Represents a gitlet commit object.
  *  TODO: It's a good idea to give a description here of what else this Class
@@ -23,24 +28,30 @@ public class Commit implements Serializable {
      */
 
     /** The message of this Commit. */
-    private String message;
-    private Instant timestamp;
+    private final String message;
+    /**
+     * How to save data in commit?
+     */
+    private final HashMap<String, String> committedMap;
+    private final Instant timestamp;
 
-    // Treating string as pointer, to avoid file too large or runtime to long
-    private String parent;
+    // Treating string as pointer, to avoid file too large or runtime too long
+    private final ArrayList<String> parent;
 
     /* TODO: fill in the rest of this class. */
 
     // Construct
     public Commit() {
-        this.parent = null;
+        this.committedMap = new HashMap<>();
+        this.parent = new ArrayList<>();
         this.message = "initial commit";
-        this.timestamp = Instant.now();
-    }
-    public Commit(String message, String parent) {
-        this.parent = parent;
-        this.message = message;
         this.timestamp = Instant.ofEpochSecond(0);
+    }
+    public Commit(String message, HashMap<String, String> newMap, ArrayList<String> parents) {
+        this.committedMap = newMap;
+        this.parent = parents;
+        this.message = message;
+        this.timestamp = Instant.now();
     }
     public String getMessage() {
         return this.message;
@@ -48,7 +59,7 @@ public class Commit implements Serializable {
     public Instant getTimestamp() {
         return this.timestamp;
     }
-    public String getParent() {
+    public ArrayList<String> getParent() {
         return this.parent;
     }
 }
