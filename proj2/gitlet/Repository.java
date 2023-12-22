@@ -3,8 +3,10 @@ package gitlet;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Objects;
 
 import static gitlet.Stage.*;
 import static gitlet.Utils.*;
@@ -92,31 +94,155 @@ public class Repository {
         }
 
         stage.add(thisFile);
+        stage.saveStageFile();
     }
+
     public static void commit(String message) {
         Stage stage = readStage();
 
         // Read from computer [the head commit object] and [the staging area]
         HashMap<String, String> stagingMap = stage.getChangedMap();
-        if (stagingMap == null) {
+        if (stagingMap.isEmpty()) {
             exitWString("No changes added to the commit.");
         }
 
         // Newest Map of alllll changes
+
+        // When initialize a new commit,
+        // should the Map and parents be the newest version, or the former version?
         HashMap<String, String> newestMap = stage.getBoundMap();
-        ArrayList<String> newestParents = stage.getParents();
+        String newestParent = stage.getParent();
 
         // Clone the HEAD commit
         // Modify its message and timestamp according to user input
             // How to get the parent commits?
-        Commit newCommit = new Commit(message, newestMap, newestParents);
+        Commit newCommit = new Commit(message, newestMap, newestParent);
         // Use the staging area in order to modify the files tracked by the new commit
         // Write back new objects made or any modified objects created earlier
 
         saveObjectToFile(OBJECTS_DIR, newCommit);
 
-        stage.updateCommittedMap();
-        stage.updateParents(getId(newCommit));
+        stage.updateMaps();
+        stage.updateParent(getId(newCommit));
         stage.saveStageFile();
     }
+    public static void log() {
+        Stage stage = readStage();
+        String curCommit = stage.getParent();
+        printCommitFrom(curCommit);
+    }
+
+    private static void printCommitFrom(String commitId) {
+        System.out.println("===");
+
+        File thisCommitFile = join(OBJECTS_DIR, commitId);
+        Commit thisCommit = readObject(thisCommitFile, Commit.class);
+
+        System.out.print("commit ");
+        System.out.println(commitId);
+        System.out.print("Date: ");
+        System.out.println(thisCommit.getTimestampFormatted());
+        System.out.println(thisCommit.getMessage());
+
+        if (!Objects.equals(thisCommit.getParent(), "")) {
+//            System.out.println("Parent: " + thisCommit.getParent());
+            System.out.println();
+            printCommitFrom(thisCommit.getParent());
+        }
+    }
+
+    /**
+     * go through every commit to check its message
+     * [stage]:
+     * [current parent (last commit) id -> curCommitFile
+     * -> curCommitObj -> ?curCommitObj.getMessage() == message;]
+     * -> curCommitObj.getParent id -> curCommitParentFile -> ...
+     */
+    public static void find(String message) {
+        Stage stage = readStage();
+        assert stage != null;
+        String curCommitId = stage.getParent();
+
+        ArrayList<String> foundList = new ArrayList<>();
+        findCommits(curCommitId, message, foundList);
+        printArrayList(foundList);
+    }
+    private static void findCommits(String curCommitId, String message, ArrayList<String> aList) {
+        if (Objects.equals(curCommitId, "")) {
+            return;
+        } else if (findThisCommit(curCommitId, message) == 1) {
+            aList.add(curCommitId);
+        }
+        findCommits(findParentFromId(curCommitId), message, aList);
+    }
+    
+    private static Integer findThisCommit(String commitId, String message) {
+        File commitFile = getFileFromName(OBJECTS_DIR, commitId);
+        Commit thisCommit = readObject(commitFile, Commit.class);
+
+        if (Objects.equals(thisCommit.getMessage(), message)) {
+            return 1;
+        }
+        return 0;
+    }
+    private static String findParentFromId(String commitId) {
+        File commitFile = getFileFromName(OBJECTS_DIR, commitId);
+        Commit thisCommit = readObject(commitFile, Commit.class);
+        return thisCommit.getParent();
+    }
+    
+    public static void remove(String fileName) {
+        Stage stage = readStage();
+
+        stage.rmStaging(getPathFromName(CWD, fileName));
+        stage.saveStageFile();
+    }
+
+    public static void checkMap() {
+        Stage stage = readStage();
+        if (stage != null) {
+            System.out.println("Staging Map: ");
+            printHashMap(stage.getChangedMap());
+            System.out.println("Committed Map: ");
+            printHashMap(stage.getCommittedMap());
+        }
+    }
+
+    /**
+     * fileName -> filePath -> committedMap -> blob id -> blob file
+     * -> blob object -> content
+     * @param fileName
+     */
+    public static void checkoutFile(String fileName) {
+        Stage stage = readStage();
+        HashMap<String, String> comMap = stage.getCommittedMap();
+
+        writeFileFromMap(comMap, fileName);
+    }
+
+    public static void checkoutCommit(String commitId, String fileName) {
+        File commitFile = getFileFromName(OBJECTS_DIR, commitId);
+        Commit thisCommit = readObject(commitFile, Commit.class);
+        HashMap<String, String> comMap = thisCommit.getMap();
+
+        writeFileFromMap(comMap, fileName);
+    }
+
+    public static void checkoutBranch(String branch) {
+        
+    }
+
+    public static void writeFileFromMap(HashMap<String, String> map, String fileName) {
+        String filePath = getPathFromName(CWD, fileName);
+        File file = getFileFromName(CWD, fileName);
+
+        String blobId = map.get(filePath);
+        File blobFile = getFileFromName(OBJECTS_DIR, blobId);
+        Blob fileBlob = readObject(blobFile, Blob.class);
+
+        byte[] content = fileBlob.getContent();
+        writeContents(file, content);
+    }
+
+
 }

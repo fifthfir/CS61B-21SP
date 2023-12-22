@@ -8,11 +8,12 @@ import static gitlet.Repository.OBJECTS_DIR;
 
 public class Blob implements Serializable {
     private final byte[] content;
-    private final String id;
 
     public Blob(File file) {
         this.content = readContents(file);
-        this.id = sha1(serialize(this));
+    }
+    public byte[] getContent() {
+        return this.content;
     }
 
     public void save() {

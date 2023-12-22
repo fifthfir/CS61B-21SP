@@ -14,9 +14,7 @@ import java.nio.file.Paths;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.Arrays;
-import java.util.Formatter;
-import java.util.List;
+import java.util.*;
 
 import static gitlet.Repository.OBJECTS_DIR;
 import static java.lang.System.exit;
@@ -207,7 +205,6 @@ class Utils {
         return Paths.get(first.getPath(), others).toFile();
     }
 
-
     /* SERIALIZATION UTILITIES */
 
     /** Returns a byte array containing the serialized contents of OBJ. */
@@ -251,5 +248,24 @@ class Utils {
     }
     static String getId(Serializable obj) {
         return sha1(serialize(obj));
+    }
+    static String getPathFromName(File cwp, String fileName) {
+        return join(cwp, fileName).getPath();
+    }
+    static File getFileFromName(File cwp, String fileName) {
+        return join(cwp, fileName);
+    }
+    static void printHashMap(HashMap<String, String> hMap) {
+        for (Map.Entry<String, String> entry : hMap.entrySet()) {
+            String key = entry.getKey();
+            String value = entry.getValue();
+            System.out.println("file path: " + key + " -> " + "file id:" + value);
+        }
+    }
+    static void printArrayList(ArrayList<String> aList) {
+        System.out.println("ArrayList elements:");
+        for (String element : aList) {
+            System.out.println(element);
+        }
     }
 }
