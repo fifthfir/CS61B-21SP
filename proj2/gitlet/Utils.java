@@ -16,7 +16,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.*;
 
-import static gitlet.Repository.OBJECTS_DIR;
+import static gitlet.Repository.*;
 import static java.lang.System.exit;
 
 
@@ -238,23 +238,20 @@ class Utils {
     }
 
     // -------------------------- /* SELFMADE */ ------------------------------------
-    static void saveObjectToFile(File cwp, Serializable obj) {
-        File objFile = join(cwp, getId(obj));
-        writeObject(objFile, obj);
-    }
     static void exitWString(String info) {
         System.out.println(info);
         exit(0);
     }
+
     static String getId(Serializable obj) {
         return sha1(serialize(obj));
     }
-    static String getPathFromName(File cwp, String fileName) {
-        return join(cwp, fileName).getPath();
+
+    static Commit getCommitFromName(File cwp, String fileName) {
+        File commitFile = join(COMMITS_DIR, fileName);
+        return readObject(commitFile, Commit.class);
     }
-    static File getFileFromName(File cwp, String fileName) {
-        return join(cwp, fileName);
-    }
+
     static void printHashMap(HashMap<String, String> hMap) {
         for (Map.Entry<String, String> entry : hMap.entrySet()) {
             String key = entry.getKey();
@@ -262,10 +259,25 @@ class Utils {
             System.out.println("file path: " + key + " -> " + "file id:" + value);
         }
     }
+
+    static HashMap<String, String> getMapFromCommitId(String commitId) {
+        File commitFile = join(COMMITS_DIR, commitId);
+        Commit commit = readObject(commitFile, Commit.class);
+        return commit.getMap();
+    }
+
     static void printArrayList(ArrayList<String> aList) {
         System.out.println("ArrayList elements:");
         for (String element : aList) {
             System.out.println(element);
+        }
+    }
+
+    static boolean stringEqual(String string1, String string2) {
+        if (string1 == null && string2 == null) {
+            return true;
+        } else {
+            return Objects.equals(string1, string2);
         }
     }
 }

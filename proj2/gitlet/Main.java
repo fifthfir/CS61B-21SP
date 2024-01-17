@@ -21,7 +21,6 @@ public class Main {
         }
     }
     public static void main(String[] args) throws IOException {
-        // TODO: what if args is empty?
         if (args.length == 0) {
             exitWString("Please enter a command.");
         }
@@ -33,13 +32,13 @@ public class Main {
             case "init":
                 checkArgsNums(args, 1);
                 Repository.init();
-                Repository.checkMap();
+//                Repository.checkMap();
                 break;
 
             case "add":
                 checkArgsNums(args, 2);
                 Repository.add(args[1]);
-                Repository.checkMap();
+//                Repository.checkMap();
                 break;
 
             case "commit":
@@ -48,23 +47,23 @@ public class Main {
                 }
                 checkArgsNums(args, 2);
                 Repository.commit(args[1]);
-                Repository.checkMap();
+//                Repository.checkMap();
                 break;
 
             case "rm":
                 checkArgsNums(args, 2);
-                Repository.remove(args[1]);
-                Repository.checkMap();
+                Repository.rm(args[1]);
+//                Repository.checkMap();
                 break;
 
             case "log":
-                // TODO: Incorrect output
                 checkArgsNums(args, 1);
                 Repository.log();
                 break;
 
             case "global-log":
-                // TODO: handle the `global-log` command
+                checkArgsNums(args, 1);
+                Repository.gLog();
                 break;
 
             case "find":
@@ -72,37 +71,44 @@ public class Main {
                 Repository.find(args[1]);
                 break;
 
-            case "status":
-                // TODO: handle the `status` command
+            case "status": // TODO
+                checkArgsNums(args, 1);
+                Repository.status();
                 break;
 
             case "checkout":
-                // TODO: handle the `checkout` command
                 if (args.length == 2) {
                     Repository.checkoutBranch(args[1]);
                 } else if (args.length == 3 && Objects.equals(args[1], "--")) {
                     Repository.checkoutFile(args[2]);
                 } else if (args.length == 4 && Objects.equals(args[2], "--")) {
-                    Repository.checkoutCommit(args[1], args[1]);
+                    Repository.checkoutCommit(args[1], args[3]);
                 } else {
                     exitWString("Incorrect operands.");
                 }
+//                Repository.checkMap();
                 break;
 
             case "branch":
-                // TODO: handle the `branch [branch name]` command
+                checkArgsNums(args, 2);
+                Repository.branch(args[1]);
                 break;
 
             case "rm-branch":
-                // TODO: handle the `rm-branch [branch name]` command
+                checkArgsNums(args, 2);
+                Repository.rmBranch(args[1]);
                 break;
 
             case "reset":
-                // TODO: handle the `reset [commit id]` command
+                checkArgsNums(args, 2);
+                Repository.reset(args[1]);
+//                Repository.checkMap();
                 break;
 
             case "merge":
                 // TODO: handle the `merge [branch name]` command
+                checkArgsNums(args, 2);
+                Repository.merge(args[1]);
                 break;
 
             case "add-remote":

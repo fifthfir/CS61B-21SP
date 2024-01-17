@@ -6,23 +6,22 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import static gitlet.Repository.STAGE;
+import static gitlet.Repository.*;
 import static gitlet.Utils.*;
 
 public class Stage implements Serializable {
     /**
      * HashMap<fileName, blobId>
-     *        <search  , compare content>
      */
-    private HashMap<String, String> newlySavedMap;
-    private HashMap<String, String> committedMap;
-    private String parent;  // Only hash id
+    private HashMap<String, String> stagingMap;
+
+    private ArrayList<String> removingMap;
+
     public Stage() {
-        this.newlySavedMap = new HashMap<>();
-        this.committedMap = new HashMap<>();
-        this.parent = "";
-        saveStageFile();
+        this.stagingMap = new HashMap<>();
+        this.removingMap = new ArrayList<>();
     }
+
     /**
      * Read the stage from STAGE file
      */
@@ -32,6 +31,7 @@ public class Stage implements Serializable {
         }
         return null;
     }
+
     /**
      * Save this stage into STAGE file
      */
@@ -48,77 +48,75 @@ public class Stage implements Serializable {
      *              dispose one in stage, if any
      *      - else, save the new blob anyway
      *
-     * @param file
      */
-    public void add(File file) {
-        String filePath = file.getPath();  // blobFile's full name
-
+    public void add(String fileName) {
+        File file = join(CWD, fileName);
         Blob blob = new Blob(file);
-        String blobId = getId(blob);
 
-        String committedId = committedMap.get(filePath);
-        String addedId = newlySavedMap.get(filePath);
+        add(fileName, blob);
+    }
+
+    public void add(String fileName, String blobId) {
+        Blob blob = readObject(join(BLOBS_DIR, blobId), Blob.class);
+
+        add(fileName, blob);
+    }
+
+    private void add(String fileName, Blob blob) {
+        String blobId = blob.getBlobId();
+
+        this.stagingMap.put(fileName, blobId);
+
+        String committedId = getHEADMap().get(fileName);
+        String addedId = stagingMap.get(fileName);
 
         if (committedId != null && committedId.equals(blobId)) {
             if (addedId != null) {
-                newlySavedMap.remove(filePath);
+                stagingMap.remove(fileName);
             }
             return;
         }
 
-        this.newlySavedMap.put(filePath, blobId);
+        this.stagingMap.put(fileName, blobId);
         blob.save();
     }
 
-    public void rmStaging(String filePath) {
-        printHashMap(newlySavedMap);
-
-        String stagingId = newlySavedMap.get(filePath);
-        String committedId = committedMap.get(filePath);
-
-        System.out.print("stagingId: ");
-        System.out.println(stagingId);
-        System.out.print("committedId: ");
-        System.out.println(committedId);
-
-        if (stagingId == null && committedId == null) {
-            exitWString("No reason to remove the file.");
-        }
-
-        if (committedId != null) {
-            restrictedDelete(filePath);
-            committedMap.remove(filePath);
-        }
-
-        if (stagingId != null) {
-            newlySavedMap.remove(filePath);
-        }
+    public void rmStaging(String fileName) {
+        stagingMap.remove(fileName);
     }
 
-    public HashMap<String, String> getChangedMap() {
-        return this.newlySavedMap;
+    public void remove(String fileName) {
+        removingMap.add(fileName);
     }
 
-    public HashMap<String, String> getCommittedMap() {
-        return this.committedMap;
+    public HashMap<String, String> getStagingMap() {
+        return this.stagingMap;
     }
 
-    public HashMap<String, String> getBoundMap() {
-        HashMap<String, String> boundMap = new HashMap<>(this.committedMap);
-        boundMap.putAll(this.newlySavedMap);
+    public HashMap<String, String> getHEADMap() {
+        return getHEADCommit().getMap();
+    }
+
+    public HashMap<String, String> getBoundMap() { // a totally new one, not pointer
+        HashMap<String, String> boundMap = new HashMap<>(getHEADMap());
+
+        // Add
+        boundMap.putAll(this.stagingMap);
+
+        // Remove
+        if (!removingMap.isEmpty()) {
+            for (String fileName : removingMap) {
+                boundMap.remove(fileName);
+            }
+        }
+
         return boundMap;
     }
 
-    public void updateMaps() {
-        this.committedMap = getBoundMap();
-        this.newlySavedMap = new HashMap<>();
+    public void clearSMap() {
+        this.stagingMap = new HashMap<>();
     }
-
-    public String getParent() {
-        return this.parent;
-    }
-
-    public void updateParent(String newParent) {
-        this.parent = newParent;
+    public boolean staged(String fileName) {
+        return this.stagingMap.get(fileName) != null;
     }
 }

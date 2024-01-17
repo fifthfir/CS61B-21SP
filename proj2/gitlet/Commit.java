@@ -8,7 +8,9 @@ import java.text.SimpleDateFormat;
 import java.time.*;
 import java.util.*;
 
-import static gitlet.Utils.getId;
+import static gitlet.Repository.BLOBS_DIR;
+import static gitlet.Repository.COMMITS_DIR;
+import static gitlet.Utils.*;
 
 /** Represents a gitlet commit object.
  *  TODO: It's a good idea to give a description here of what else this Class
@@ -34,6 +36,7 @@ public class Commit implements Serializable {
     private final Instant timestamp;
 
     // Treating string as pointer, to avoid file too large or runtime too long
+    private final String id;
     private final String parent;
 
     /* TODO: fill in the rest of this class. */
@@ -44,12 +47,19 @@ public class Commit implements Serializable {
         this.parent = "";
         this.message = "initial commit";
         this.timestamp = Instant.ofEpochSecond(0);
+        this.id = getId(this);
     }
-        public Commit(String message, HashMap<String, String> newMap, String parent) {
+    public Commit(String message, HashMap<String, String> newMap, String parent) {
         this.committedMap = newMap;
         this.parent = parent;
         this.message = message;
         this.timestamp = Instant.now();
+        this.id = getId(this);
+    }
+
+    public void save() {
+        File objFile = join(COMMITS_DIR, this.id);
+        writeObject(objFile, this);
     }
     public String getMessage() {
         return this.message;
@@ -65,5 +75,36 @@ public class Commit implements Serializable {
 
     public HashMap<String, String> getMap() {
         return this.committedMap;
+    }
+    public String getCommitId() {
+        return this.id;
+    }
+
+    public static Commit findAncestor(Commit branch1, Commit branch2) {
+        Set<Commit> visitedByBranch1 = new HashSet<>();
+        Set<Commit> visitedByBranch2 = new HashSet<>();
+
+        dfs(branch1, visitedByBranch1);
+        dfs(branch2, visitedByBranch2);
+
+        Set<Commit> commonCommits = new HashSet<>(visitedByBranch1);
+        commonCommits.retainAll(visitedByBranch2);
+
+        if (!commonCommits.isEmpty()) {
+            return commonCommits.iterator().next();
+        }
+
+        return null;
+    }
+
+    private static void dfs(Commit commit, Set<Commit> visitedCommits) {
+        if (visitedCommits.contains(commit)) {
+            return;
+        }
+        visitedCommits.add(commit);
+
+        if (!Objects.equals(commit.getParent(), "")) {
+            dfs(getCommitFromName(COMMITS_DIR, commit.getParent()), visitedCommits);
+        }
     }
 }
