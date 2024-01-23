@@ -2,6 +2,7 @@ package gitlet;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Array;
 import java.nio.file.Files;
 import java.time.Instant;
 import java.util.*;
@@ -9,6 +10,7 @@ import java.util.*;
 import static gitlet.Stage.*;
 import static gitlet.Utils.*;
 import static gitlet.Utils.restrictedDelete;
+import static gitlet.Utils.writeObject;
 import static java.lang.System.exit;
 
 // TODO: any imports you need here
@@ -44,15 +46,20 @@ public class Repository {
     private static final File MASTER = join(BRANCH_DIR, "master");
     private static final File HEAD = join(GITLET_DIR, "HEAD");
 
+    private static final ArrayList<String> ignoreFiles =
+        new ArrayList<>(Arrays.asList("Makefile", "gitlet-design.md", "pom.xml"));
+
     private static String getHEADBranchName() {
         return readObject(HEAD, String.class);
     }
+
+
     public static Commit getHEADCommit() {
         return readObject(join(BRANCH_DIR, getHEADBranchName()), Commit.class);
     }
 
 
-    public static void init() throws IOException {
+    public static void init() {
 
         boolean initialExists = OBJECTS_DIR.exists();
 
@@ -62,7 +69,11 @@ public class Repository {
             COMMITS_DIR.mkdir();
             BLOBS_DIR.mkdir();
             BRANCH_DIR.mkdir();
-            MASTER.createNewFile();
+            try {
+                MASTER.createNewFile();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
 
             Commit initialCommit = new Commit();
             initialCommit.save();
@@ -79,9 +90,6 @@ public class Repository {
     }
 
     public static void add(String fileName) {
-
-//        checkMap();
-
         // Check the file exists
         File thisFile = join(CWD, fileName);;
 
@@ -97,13 +105,19 @@ public class Repository {
         stage.saveStageFile();
     }
 
+
+    /**
+     *
+     * @param message   to make a commit with the given message
+     */
     public static void commit(String message) {
         Stage stage = readStage();
 
         // Read from computer [the head commit object] and [the staging area]
         HashMap<String, String> stagingMap = stage.getStagingMap();
+        ArrayList<String> rmMap = stage.getRmMap();
 
-        if (stagingMap.isEmpty()) {
+        if (stagingMap.isEmpty() && rmMap.isEmpty()) {
             exitWString("No changes added to the commit.");
         }
 
@@ -121,7 +135,7 @@ public class Repository {
         writeObject(join(BRANCH_DIR, curBranch), newCommit);
         writeObject(HEAD, curBranch);
 
-        stage.clearSMap();
+        stage.clearMap();
         stage.saveStageFile();
     }
 
@@ -134,11 +148,19 @@ public class Repository {
         // TODO: Deal with multi parents
     }
 
+
+    /**
+     * Print out the log of commits in current branch
+     */
     public static void log() {
         Commit curCommit = getHEADCommit();
         printCommitFrom(curCommit.getCommitId());
     }
 
+
+    /**
+     * Print out the log of commits in all branches
+     */
     public static void gLog() {
         List<String> commitIds = plainFilenamesIn(COMMITS_DIR);
         for (String commitId : commitIds) {
@@ -169,12 +191,15 @@ public class Repository {
         System.out.println(thisCommit.getMessage());
     }
 
+
     /**
-     * go through every commit to check its message
+     * Go through every commit to check its message
      * [stage]:
      * [current parent (last commit) id -> curCommitFile
      * -> curCommitObj -> ?curCommitObj.getMessage() == message;]
      * -> curCommitObj.getParent id -> curCommitParentFile -> ...
+     *
+     * @param message   the message to find
      */
     public static void find(String message) {
         Stage stage = readStage();
@@ -184,7 +209,8 @@ public class Repository {
 
         ArrayList<String> foundList = new ArrayList<>();
         findCommits(curCommitId, message, foundList);
-        printArrayList(foundList);
+        if (!foundList.isEmpty()) printArrayList(foundList);
+        else System.out.println("Found no commit with that message.");
     }
 
     private static void findCommits(String curCommitId, String message, ArrayList<String> aList) {
@@ -208,7 +234,11 @@ public class Repository {
     private static String findParentFromId(String commitId) {
         return getCommitFromName(COMMITS_DIR, commitId).getParent();
     }
-    
+
+
+    /**
+     * @param fileName  the file to remove from the staging area or the working directory if it is tracked in the current commit
+     */
     public static void rm(String fileName) {
         Stage stage = readStage();
         Commit HEADCommit = getHEADCommit();
@@ -231,6 +261,7 @@ public class Repository {
             restrictedDelete(join(CWD, fileName));
         }
 
+        stage.saveStageFile();
     }
 
     public static void checkMap() {
@@ -243,34 +274,44 @@ public class Repository {
         }
     }
 
+
     /**
      * fileName -> filePath -> committedMap -> blob id -> blob file
      * -> blob object -> content
+     *
+     * @param fileName  the file we want to set back to the version of the current commit
      */
-    public static void checkoutFile(String fileName) throws IOException {
+    public static void checkoutFile(String fileName) {
         Commit headCommit = getHEADCommit();
         checkoutCommitObj(headCommit, fileName);
     }
 
-    public static void checkoutCommitObj(Commit commit, String fileName) throws IOException {
+
+    private static void checkoutCommitObj(Commit commit, String fileName) {
         HashMap<String, String> comMap = commit.getMap();
         writeAFileFromMap(comMap, fileName);
     }
 
-    public static void checkoutCommit(String commitId, String fileName) throws IOException {
+
+    /**
+     * @param fileName      Which file we want to recover from the current commit
+     */
+    public static void checkoutCommit(String commitId, String fileName) {
         checkCommitId(commitId);
 
         HashMap<String, String> comMap = getMapFromCommitId(commitId);
         writeAFileFromMap(comMap, fileName);
     }
 
+
     /**
      * Takes all files in the commit at the head of the given branch,
      * and puts them in the working directory,
      * overwriting the versions of the files that are already there if they exist.
      *
+     * @param branchName    The branch we want to change to
      */
-    public static void checkoutBranch(String branchName) throws IOException {
+    public static void checkoutBranch(String branchName) {
         File branchFile = join(BRANCH_DIR, branchName);
         Stage stage = readStage();
 
@@ -292,7 +333,7 @@ public class Repository {
         writeAllFilesFromMap(newMap);
 
         if (getHEADCommit() != brCommit) {
-            stage.clearSMap();
+            stage.clearMap();
         }
 
         // last, write this new branch file into HEAD
@@ -301,13 +342,13 @@ public class Repository {
 
     }
 
-    private static void writeAFileFromMap(HashMap<String, String> map, String fileName) throws IOException {
+    private static void writeAFileFromMap(HashMap<String, String> map, String fileName) {
         checkFileCommitted(map, fileName);
         String blobId = map.get(fileName);
         writeFileFromFB(fileName, blobId);
     }
 
-    private static void writeAllFilesFromMap(HashMap<String, String> map) throws IOException {
+    private static void writeAllFilesFromMap(HashMap<String, String> map) {
         for (Map.Entry<String, String> entry : map.entrySet()) {
             String fileName = entry.getKey();
             String blobId = entry.getValue();
@@ -333,7 +374,7 @@ public class Repository {
         exitWString("No commit with that id exists.");
     }
 
-    public static void reset(String commitId) throws IOException {
+    public static void reset(String commitId) {
         checkCommitId(commitId);
 
         Stage stage = readStage();
@@ -344,7 +385,7 @@ public class Repository {
 
         HashMap<String, String> committedFileMap = getMapFromCommitId(commitId);
         writeAllFilesFromMap(committedFileMap);
-        stage.clearSMap();
+        stage.clearMap();
 
         String curBranchName = readObject(HEAD, String.class);
         writeObject(join(BRANCH_DIR, curBranchName), join(COMMITS_DIR, commitId));
@@ -355,9 +396,10 @@ public class Repository {
     private static void ifAllTracked() {
         Commit curCommit = getHEADCommit();
         HashMap<String, String> trackedMap = curCommit.getMap();
+
         List<String> fileNames = plainFilenamesIn(CWD);
         for (String fileName : fileNames) {
-            if (trackedMap.get(fileName) == null) {
+            if (trackedMap.get(fileName) == null && !ignoreFiles.contains(fileName)) {
                 exitWString("There is an untracked file in the way; delete it, or add and commit it first.");
             }
         }
@@ -372,7 +414,7 @@ public class Repository {
         }
     }
 
-    private static void writeFileFromFB(String fileName, String blobId) throws IOException {
+    private static void writeFileFromFB(String fileName, String blobId) {
         File file = join(CWD, fileName);
 
         File blobFile = join(BLOBS_DIR, blobId);
@@ -380,26 +422,44 @@ public class Repository {
 
         if (file.exists()) {
             restrictedDelete(file);
-            file.createNewFile();
+            try {
+                file.createNewFile();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
         } else {
-            file.createNewFile();
+            try {
+                file.createNewFile();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
         }
 
         byte[] content = blob.getContent();
         writeContents(file, content);
     }
 
-    public static void branch(String branchName) throws IOException {
+    /**
+     *
+     * @param branchName    The new branch's name
+     */
+    public static void branch(String branchName) {
         File branchFile = join(BRANCH_DIR, branchName);
         if (branchFile.exists()) {
             exitWString("A branch with that name already exists.");
         }
 
-        branchFile.createNewFile();
+        try {
+            branchFile.createNewFile();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
         writeObject(branchFile, getHEADCommit());
+        writeObject(HEAD, branchName);
     }
 
-    // TODO
+
     public static void status() {
         // Branches
         printStatusTitle("Branches");
@@ -411,7 +471,7 @@ public class Repository {
             if (Objects.equals(HEADBranchName, branchName)) {
                 System.out.print("*");
             }
-            System.out.println("branchName");
+            System.out.println(branchName);
         }
 
 
@@ -427,22 +487,85 @@ public class Repository {
             System.out.println(fileName);
         }
 
+
         // Removed Files
         System.out.println();
         printStatusTitle("Removed Files");
 
+        ArrayList<String> rmMap = stage.getRmMap();
+
+        for (String fileName : rmMap) {
+            System.out.println(fileName);
+        }
+
+
         // Modifications Not Staged For Commit
+
+        /**
+         * 1 - Tracked in the current commit, changed in the working directory, but not staged;
+         * 2 - Staged for addition, but with different contents than in the working directory; or
+         * 3 - Staged for addition, but deleted in the working directory; or
+         * 4 - Not staged for removal, but tracked in the current commit and deleted from the working directory.
+         */
         System.out.println();
         printStatusTitle("Modifications Not Staged For Commit");
+
+        for (Map.Entry<String, String> entry : stagingMap.entrySet()) {
+            String fileName = entry.getKey();
+            String blobId = entry.getValue();
+
+            File thisFile = join(CWD, fileName);
+
+            if (!thisFile.exists()) {  // 3
+                System.out.println(fileName);
+            } else {
+                String curBlobId = new Blob(thisFile).getBlobId();
+                if (!blobId.equals(curBlobId)) {  // 2
+                    System.out.println(fileName);
+                }
+            }
+        }
+
+        HashMap<String, String> committedMap = getHEADCommit().getMap();
+
+        for (Map.Entry<String, String> entry : committedMap.entrySet()) {
+            String fileName = entry.getKey();
+            String blobId = entry.getValue();
+
+            File thisFile = join(CWD, fileName);
+
+            if (!thisFile.exists() && !rmMap.contains(fileName)) {  // 4
+                System.out.println(fileName);
+            } else if (thisFile.exists()) {
+                String curBlobId = new Blob(thisFile).getBlobId();
+                if (!blobId.equals(curBlobId) && !blobId.equals(stagingMap.get(fileName))) {  // 1
+                    System.out.println(fileName);
+                }
+            }
+        }
+
 
         // Untracked Files
         System.out.println();
         printStatusTitle("Untracked Files");
 
+        // Files present in the working directory
+        // but neither staged for addition nor tracked.
+        // This includes files that have been staged for removal,
+        // but then re-created without Gitlet’s knowledge.
+
+        List<String> allFileName = plainFilenamesIn(CWD);
+        for (String fileName : allFileName) {
+            if (ignoreFiles.contains(fileName)) continue;
+            if (!stagingMap.containsKey(fileName) && !committedMap.containsKey(fileName)) {
+                System.out.println(fileName);
+            }
+        }
 
         System.out.println();
 
     }
+
 
     private static void printStatusTitle(String title) {
         System.out.println("=== " + title + " ===");
@@ -464,8 +587,13 @@ public class Repository {
         restrictedDelete(branchFile);
     }
 
-    // TODO
-    public static void merge(String branchName) throws IOException {
+
+    /**
+     * Merges files from the given branch into the current branch.
+     *
+     * @param branchName    Branch to be merged into current branch
+     */
+    public static void merge(String branchName) {
         Stage stage = readStage();
 
         if (!stage.getStagingMap().isEmpty()) {
@@ -485,7 +613,8 @@ public class Repository {
 
         Commit curBranch = getHEADCommit();
         Commit givenBranch = getCommitFromName(BRANCH_DIR, branchName);
-        Commit splitPoint = Commit.findAncestor(curBranch, givenBranch);
+
+        Commit splitPoint = findSplitPoint(getHEADBranchName(), branchName);
 
         if (Objects.equals(splitPoint, givenBranch)) {
             System.out.println("Given branch is an ancestor of the current branch.");
@@ -606,6 +735,25 @@ public class Repository {
             System.out.println("Encountered a merge conflict.");
         }
     }
+
+
+    private static Commit findSplitPoint(String curBranch, String branch2) {
+        Commit commit1 = getHEADCommit();
+        Commit commit2 = readObject(join(BRANCH_DIR, branch2), Commit.class);
+
+
+        while (true) {
+            if (Objects.equals(commit1.getParent(), commit2.getCommitId())) {
+                return commit2;
+            } else if (Objects.equals(commit2.getParent(), commit1.getCommitId())) {
+                return commit1;
+            } else {
+                commit1 = getCommitFromName(COMMITS_DIR, commit1.getParent());
+                commit2 = getCommitFromName(COMMITS_DIR, commit2.getParent());
+            }
+        }
+    }
+
 
     private static byte[] getContentFromId(String blobId) {
         Blob blob = readObject(join(BLOBS_DIR, blobId), Blob.class);

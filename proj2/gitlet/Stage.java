@@ -13,6 +13,7 @@ public class Stage implements Serializable {
     /**
      * HashMap<fileName, blobId>
      */
+
     private HashMap<String, String> stagingMap;
 
     private ArrayList<String> removingMap;
@@ -81,12 +82,19 @@ public class Stage implements Serializable {
         blob.save();
     }
 
+
     public void rmStaging(String fileName) {
         stagingMap.remove(fileName);
     }
 
     public void remove(String fileName) {
-        removingMap.add(fileName);
+        if (!removingMap.contains(fileName)) {
+            removingMap.add(fileName);
+        }
+    }
+
+    public ArrayList<String> getRmMap() {
+        return this.removingMap;
     }
 
     public HashMap<String, String> getStagingMap() {
@@ -113,8 +121,9 @@ public class Stage implements Serializable {
         return boundMap;
     }
 
-    public void clearSMap() {
+    public void clearMap() {
         this.stagingMap = new HashMap<>();
+        this.removingMap = new ArrayList<>();
     }
     public boolean staged(String fileName) {
         return this.stagingMap.get(fileName) != null;

@@ -80,31 +80,31 @@ public class Commit implements Serializable {
         return this.id;
     }
 
-    public static Commit findAncestor(Commit branch1, Commit branch2) {
-        Set<Commit> visitedByBranch1 = new HashSet<>();
-        Set<Commit> visitedByBranch2 = new HashSet<>();
-
-        dfs(branch1, visitedByBranch1);
-        dfs(branch2, visitedByBranch2);
-
-        Set<Commit> commonCommits = new HashSet<>(visitedByBranch1);
-        commonCommits.retainAll(visitedByBranch2);
-
-        if (!commonCommits.isEmpty()) {
-            return commonCommits.iterator().next();
-        }
-
-        return null;
-    }
-
-    private static void dfs(Commit commit, Set<Commit> visitedCommits) {
-        if (visitedCommits.contains(commit)) {
-            return;
-        }
-        visitedCommits.add(commit);
-
-        if (!Objects.equals(commit.getParent(), "")) {
-            dfs(getCommitFromName(COMMITS_DIR, commit.getParent()), visitedCommits);
-        }
-    }
+//    public static Commit findAncestor(Commit branch1, Commit branch2) {
+//        Set<Commit> visitedByBranch1 = new HashSet<>();
+//        Set<Commit> visitedByBranch2 = new HashSet<>();
+//
+//        dfs(branch1, visitedByBranch1);
+//        dfs(branch2, visitedByBranch2);
+//
+//        Set<Commit> commonCommits = new HashSet<>(visitedByBranch1);
+//        commonCommits.retainAll(visitedByBranch2);
+//
+//        if (!commonCommits.isEmpty()) {
+//            return commonCommits.iterator().next();
+//        }
+//
+//        return null;
+//    }
+//
+//    private static void dfs(Commit commit, Set<Commit> visitedCommits) {
+//        if (visitedCommits.contains(commit)) {
+//            return;
+//        }
+//        visitedCommits.add(commit);
+//
+//        if (!Objects.equals(commit.getParent(), "")) {
+//            dfs(getCommitFromName(COMMITS_DIR, commit.getParent()), visitedCommits);
+//        }
+//    }
 }
