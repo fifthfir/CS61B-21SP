@@ -94,7 +94,7 @@ public class Stage implements Serializable {
     }
 
     public void unremove(String fileName) {
-        if (!removingMap.contains(fileName)) {
+        if (removingMap.contains(fileName)) {
             removingMap.remove(fileName);
         }
     }
