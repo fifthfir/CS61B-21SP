@@ -83,7 +83,7 @@ public class Repository {
 
     public static void add(String fileName) {
         // Check the file exists
-        File thisFile = join(CWD, fileName);;
+        File thisFile = join(CWD, fileName);
 
         if (!thisFile.exists() || !STAGE.exists()) {
             exitWString("File does not exist.");
@@ -226,10 +226,10 @@ public class Repository {
      */
     public static void rm(String fileName) {
         Stage stage = readStage();
-        Commit HeadCommit = getHEADCommit();
+        Commit headCommit = getHEADCommit();
 
         boolean fileStaged = stage.staged(fileName);
-        String fileCurCommitted = HeadCommit.getMap().get(fileName);
+        String fileCurCommitted = headCommit.getMap().get(fileName);
 
 
         if (!fileStaged && fileCurCommitted == null) {
@@ -237,12 +237,12 @@ public class Repository {
         }
 
         if (fileStaged) {
-            stage.rmStaging(fileName);
+//            stage.rmStaging(fileName);
             stage.saveStageFile();
         }
 
         if (fileCurCommitted != null) {
-            stage.remove(fileName);
+//            stage.remove(fileName);
             restrictedDelete(join(CWD, fileName));
         }
 
@@ -447,20 +447,19 @@ public class Repository {
 
 
     public static void status() {
-        // Branches
+        if (!GITLET_DIR.exists()) {
+            exitWString("Not in an initialized Gitlet directory.");
+        }
+
         printStatusTitle("Branches");
 
-        List<String> branchNames = plainFilenamesIn(BRANCH_DIR);
-        String HeadBranchName = getHeadBranchName();
-
-        for (String branchName : branchNames) {
-            if (Objects.equals(HeadBranchName, branchName)) {
+        for (String branchName : plainFilenamesIn(BRANCH_DIR)) {
+            if (Objects.equals(getHeadBranchName(), branchName)) {
                 System.out.print("*");
             }
             System.out.println(branchName);
         }
 
-        // Staged Files
         System.out.println();
         printStatusTitle("Staged Files");
 
@@ -468,50 +467,40 @@ public class Repository {
         HashMap<String, String> stagingMap = stage.getStagingMap();
 
         for (Map.Entry<String, String> entry : stagingMap.entrySet()) {
-            String fileName = entry.getKey();
-            System.out.println(fileName);
+            System.out.println(entry.getKey());
         }
 
-        // Removed Files
         System.out.println();
         printStatusTitle("Removed Files");
 
-        ArrayList<String> rmMap = stage.getRmMap();
-
-        for (String fileName : rmMap) {
+        for (String fileName : stage.getRmMap()) {
             System.out.println(fileName);
         }
-
-        // Modifications Not Staged For Commit
 
         System.out.println();
         printStatusTitle("Modifications Not Staged For Commit");
 
         for (Map.Entry<String, String> entry : stagingMap.entrySet()) {
             String fileName = entry.getKey();
-            String blobId = entry.getValue();
-
             File thisFile = join(CWD, fileName);
-
             if (!thisFile.exists()) {  // 3
                 System.out.println(fileName);
             } else {
                 String curBlobId = new Blob(thisFile).getBlobId();
-                if (!blobId.equals(curBlobId)) {  // 2
+                if (!entry.getValue().equals(curBlobId)) {  // 2
                     System.out.println(fileName);
                 }
             }
         }
 
         HashMap<String, String> committedMap = getHEADCommit().getMap();
-
         for (Map.Entry<String, String> entry : committedMap.entrySet()) {
             String fileName = entry.getKey();
             String blobId = entry.getValue();
 
             File thisFile = join(CWD, fileName);
 
-            if (!thisFile.exists() && !rmMap.contains(fileName)) {  // 4
+            if (!thisFile.exists() && !stage.getRmMap().contains(fileName)) {  // 4
                 System.out.println(fileName);
             } else if (thisFile.exists()) {
                 String curBlobId = new Blob(thisFile).getBlobId();
@@ -522,12 +511,10 @@ public class Repository {
             }
         }
 
-        // Untracked Files
         System.out.println();
         printStatusTitle("Untracked Files");
 
-        List<String> allFileName = plainFilenamesIn(CWD);
-        for (String fileName : allFileName) {
+        for (String fileName : plainFilenamesIn(CWD)) {
             if (IGNORE_FILES.contains(fileName)) {
                 continue;
             }
@@ -535,7 +522,6 @@ public class Repository {
                 System.out.println(fileName);
             }
         }
-
         System.out.println();
     }
 
@@ -558,7 +544,7 @@ public class Repository {
         }
 
         try {
-            Files.delete(branchFile.toPath());
+            Files.delete(branchFile.toPath());  // dangerous
         } catch (IOException e) {
             System.err.println("Unable to delete the file: " + e.getMessage());
         }
@@ -619,7 +605,9 @@ public class Repository {
             String gbId = gbMap.get(fileName);
 
             if (cbId == null) {
-                exitWString("There is an untracked file in the way; delete it, or add and commit it first.");
+                exitWString(
+                    "There is an untracked file in the way; "
+                        + "delete it, or add and commit it first.");
             }
 
             // no one absent
@@ -719,7 +707,6 @@ public class Repository {
         String msg = "Merged " + givenBranchName + " into " + curBranchName;
 
         commit(msg);
-        // TODO: Deal with multi parents
     }
 
 

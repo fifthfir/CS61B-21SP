@@ -32,7 +32,7 @@ class Utils {
     /** The length of a complete SHA-1 UID as a hexadecimal numeral. */
     static final int UID_LENGTH = 40;
 
-    // ---------------------------------/* SHA-1 HASH VALUES. */ ---------------------------------------
+    // --------------------------/* SHA-1 HASH VALUES. */ ----------------------------
 
     /** Returns the SHA-1 hash of the concatenation of VALS, which may
      *  be any mixture of byte arrays and Strings. */
@@ -89,7 +89,7 @@ class Utils {
         return restrictedDelete(new File(file));
     }
 
-    // --------------------------/* READING AND WRITING FILE CONTENTS */ -------------------------------
+    // -----------------/* READING AND WRITING FILE CONTENTS */ --------------------
 
     /** Return the entire contents of FILE as a byte array.  FILE must
      *  be a normal file.  Throws IllegalArgumentException
