@@ -26,19 +26,15 @@ public class Main {
         }
         String firstArg = args[0];
 
-        // TODO: all of other commands
-
         switch(firstArg) {
             case "init":
                 checkArgsNums(args, 1);
                 Repository.init();
-//                Repository.checkMap();
                 break;
 
             case "add":
                 checkArgsNums(args, 2);
                 Repository.add(args[1]);
-//                Repository.checkMap();
                 break;
 
             case "commit":
@@ -47,13 +43,11 @@ public class Main {
                 }
                 checkArgsNums(args, 2);
                 Repository.commit(args[1]);
-//                Repository.checkMap();
                 break;
 
             case "rm":
                 checkArgsNums(args, 2);
                 Repository.rm(args[1]);
-//                Repository.checkMap();
                 break;
 
             case "log":
@@ -86,7 +80,6 @@ public class Main {
                 } else {
                     exitWString("Incorrect operands.");
                 }
-//                Repository.checkMap();
                 break;
 
             case "branch":
@@ -102,7 +95,6 @@ public class Main {
             case "reset":
                 checkArgsNums(args, 2);
                 Repository.reset(args[1]);
-//                Repository.checkMap();
                 break;
 
             case "merge":

@@ -2,29 +2,21 @@ package gitlet;
 
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.Array;
-import java.nio.file.Files;
-import java.time.Instant;
 import java.util.*;
 
 import static gitlet.Stage.*;
 import static gitlet.Utils.*;
 import static gitlet.Utils.restrictedDelete;
 import static gitlet.Utils.writeObject;
-import static java.lang.System.exit;
 
-// TODO: any imports you need here
 
 /** Represents a gitlet repository.
- *  TODO: It's a good idea to give a description here of what else this Class
- *  does at a high level.
  *
  *  @author Ruotian Zhang
  */
 public class Repository {
 
     /**
-     * TODO: add instance variables here.
      * List all instance variables of the Repository class here with a useful
      * comment above them describing what that variable represents and how that
      * variable is used. We've provided two examples for you.
@@ -46,16 +38,15 @@ public class Repository {
     private static final File MASTER = join(BRANCH_DIR, "master");
     private static final File HEAD = join(GITLET_DIR, "HEAD");
 
-    private static final ArrayList<String> ignoreFiles =
+    private static final ArrayList<String> IGNORE_FILES =
         new ArrayList<>(Arrays.asList("Makefile", "gitlet-design.md", "pom.xml"));
 
-    private static String getHEADBranchName() {
+    private static String getHeadBranchName() {
         return readObject(HEAD, String.class);
     }
 
-
     public static Commit getHEADCommit() {
-        return readObject(join(BRANCH_DIR, getHEADBranchName()), Commit.class);
+        return readObject(join(BRANCH_DIR, getHeadBranchName()), Commit.class);
     }
 
 
@@ -105,9 +96,7 @@ public class Repository {
         stage.saveStageFile();
     }
 
-
     /**
-     *
      * @param message   to make a commit with the given message
      */
     public static void commit(String message) {
@@ -138,16 +127,6 @@ public class Repository {
         stage.clearMap();
         stage.saveStageFile();
     }
-
-    // TODO
-    private static void mergeCommit(String givenBranchName) {
-        String curBranchName = readObject(HEAD, String.class);
-        String msg = "Merged " + givenBranchName + " into " + curBranchName;
-
-        commit(msg);
-        // TODO: Deal with multi parents
-    }
-
 
     /**
      * Print out the log of commits in current branch
@@ -209,8 +188,11 @@ public class Repository {
 
         ArrayList<String> foundList = new ArrayList<>();
         findCommits(curCommitId, message, foundList);
-        if (!foundList.isEmpty()) printArrayList(foundList);
-        else System.out.println("Found no commit with that message.");
+        if (!foundList.isEmpty()) {
+            printArrayList(foundList);
+        } else {
+            System.out.println("Found no commit with that message.");
+        }
     }
 
     private static void findCommits(String curCommitId, String message, ArrayList<String> aList) {
@@ -221,7 +203,7 @@ public class Repository {
         }
         findCommits(findParentFromId(curCommitId), message, aList);
     }
-    
+
     private static Integer findThisCommit(String commitId, String message) {
         Commit thisCommit = getCommitFromName(COMMITS_DIR, commitId);
 
@@ -237,14 +219,14 @@ public class Repository {
 
 
     /**
-     * @param fileName  the file to remove from the staging area or the working directory if it is tracked in the current commit
+     * @param fileName  the file to remove
      */
     public static void rm(String fileName) {
         Stage stage = readStage();
-        Commit HEADCommit = getHEADCommit();
+        Commit HeadCommit = getHEADCommit();
 
         boolean fileStaged = stage.staged(fileName);
-        String fileCurCommitted = HEADCommit.getMap().get(fileName);
+        String fileCurCommitted = HeadCommit.getMap().get(fileName);
 
 
         if (!fileStaged && fileCurCommitted == null) {
@@ -320,7 +302,7 @@ public class Repository {
             exitWString("No such branch exists.");
         }
 
-        if (Objects.equals(getHEADBranchName(), branchName)) {
+        if (Objects.equals(getHeadBranchName(), branchName)) {
             exitWString("No need to checkout the current branch.");
         }
 
@@ -399,16 +381,17 @@ public class Repository {
 
         List<String> fileNames = plainFilenamesIn(CWD);
         for (String fileName : fileNames) {
-            if (trackedMap.get(fileName) == null && !ignoreFiles.contains(fileName)) {
-                exitWString("There is an untracked file in the way; delete it, or add and commit it first.");
+            if (trackedMap.get(fileName) == null && !IGNORE_FILES.contains(fileName)) {
+                exitWString("There is an untracked file in the way; "
+                    + "delete it, or add and commit it first.");
             }
         }
     }
 
     private static void removeCurCommit() {
         Commit curCommit = getHEADCommit();
-        HashMap<String, String> MapToDelete = curCommit.getMap();
-        for (Map.Entry<String, String> entry : MapToDelete.entrySet()) {
+        HashMap<String, String> mapToDelete = curCommit.getMap();
+        for (Map.Entry<String, String> entry : mapToDelete.entrySet()) {
             String fileName = entry.getKey();
             restrictedDelete(join(CWD, fileName));
         }
@@ -465,15 +448,14 @@ public class Repository {
         printStatusTitle("Branches");
 
         List<String> branchNames = plainFilenamesIn(BRANCH_DIR);
-        String HEADBranchName = getHEADBranchName();
+        String HeadBranchName = getHeadBranchName();
 
         for (String branchName : branchNames) {
-            if (Objects.equals(HEADBranchName, branchName)) {
+            if (Objects.equals(HeadBranchName, branchName)) {
                 System.out.print("*");
             }
             System.out.println(branchName);
         }
-
 
         // Staged Files
         System.out.println();
@@ -487,7 +469,6 @@ public class Repository {
             System.out.println(fileName);
         }
 
-
         // Removed Files
         System.out.println();
         printStatusTitle("Removed Files");
@@ -498,15 +479,8 @@ public class Repository {
             System.out.println(fileName);
         }
 
-
         // Modifications Not Staged For Commit
 
-        /**
-         * 1 - Tracked in the current commit, changed in the working directory, but not staged;
-         * 2 - Staged for addition, but with different contents than in the working directory; or
-         * 3 - Staged for addition, but deleted in the working directory; or
-         * 4 - Not staged for removal, but tracked in the current commit and deleted from the working directory.
-         */
         System.out.println();
         printStatusTitle("Modifications Not Staged For Commit");
 
@@ -538,32 +512,28 @@ public class Repository {
                 System.out.println(fileName);
             } else if (thisFile.exists()) {
                 String curBlobId = new Blob(thisFile).getBlobId();
-                if (!blobId.equals(curBlobId) && !blobId.equals(stagingMap.get(fileName))) {  // 1
+                if (!blobId.equals(curBlobId)
+                    && !blobId.equals(stagingMap.get(fileName))) {  // 1
                     System.out.println(fileName);
                 }
             }
         }
 
-
         // Untracked Files
         System.out.println();
         printStatusTitle("Untracked Files");
 
-        // Files present in the working directory
-        // but neither staged for addition nor tracked.
-        // This includes files that have been staged for removal,
-        // but then re-created without Gitlet’s knowledge.
-
         List<String> allFileName = plainFilenamesIn(CWD);
         for (String fileName : allFileName) {
-            if (ignoreFiles.contains(fileName)) continue;
+            if (IGNORE_FILES.contains(fileName)) {
+                continue;
+            }
             if (!stagingMap.containsKey(fileName) && !committedMap.containsKey(fileName)) {
                 System.out.println(fileName);
             }
         }
 
         System.out.println();
-
     }
 
 
@@ -579,7 +549,7 @@ public class Repository {
             exitWString("A branch with that name does not exist.");
         }
 
-        String curBranchName = getHEADBranchName();
+        String curBranchName = getHeadBranchName();
         if (Objects.equals(branchName, curBranchName)) {
             exitWString("Cannot remove the current branch.");
         }
@@ -614,7 +584,7 @@ public class Repository {
         Commit curBranch = getHEADCommit();
         Commit givenBranch = getCommitFromName(BRANCH_DIR, branchName);
 
-        Commit splitPoint = findSplitPoint(getHEADBranchName(), branchName);
+        Commit splitPoint = findSplitPoint(getHeadBranchName(), branchName);
 
         if (Objects.equals(splitPoint, givenBranch)) {
             System.out.println("Given branch is an ancestor of the current branch.");
@@ -628,33 +598,33 @@ public class Repository {
         boolean conflict = false;
 
         // for every file:
-        HashMap<String, String> CBMap = curBranch.getMap();
+        HashMap<String, String> cbMap = curBranch.getMap();
         assert splitPoint != null;
-        HashMap<String, String> SPMap = splitPoint.getMap();
-        HashMap<String, String> GBMap = givenBranch.getMap();
+        HashMap<String, String> spMap = splitPoint.getMap();
+        HashMap<String, String> gbMap = givenBranch.getMap();
 
         List<String> fileNames = plainFilenamesIn(CWD);
 
         assert fileNames != null;
         for (String fileName : fileNames) {
-            String CBId = CBMap.get(fileName);
-            String SPId = SPMap.get(fileName);
-            String GBId = GBMap.get(fileName);
+            String cbId = cbMap.get(fileName);
+            String spId = spMap.get(fileName);
+            String gbId = gbMap.get(fileName);
 
-            if (CBId == null) {
+            if (cbId == null) {
                 exitWString("There is an untracked file in the way; delete it, or add and commit it first.");
             }
 
             // no one absent
-            if (SPId != null && CBId != null && GBId != null) {
+            if (spId != null && cbId != null && gbId != null) {
 
                 // 1.
                 // modified in the given branch since the split point
                 // but not modified in the current branch
 
-                if (Objects.equals(SPId, CBId) && !Objects.equals(SPId, GBId)) {
+                if (Objects.equals(spId, cbId) && !Objects.equals(spId, gbId)) {
                     checkoutCommitObj(givenBranch, fileName);
-                    String blobId = GBMap.get(fileName);
+                    String blobId = gbMap.get(fileName);
                     stage.add(fileName, blobId);
                     break;
                 }
@@ -662,13 +632,13 @@ public class Repository {
                 // 2.
                 // Any files that have been modified in the current branch
                 // but not in the given branch
-                if (Objects.equals(SPId, GBId) && !Objects.equals(SPId, CBId)) {
+                if (Objects.equals(spId, gbId) && !Objects.equals(spId, cbId)) {
                     break;
                 }
 
                 // 3.1.
                 // modified in both the current and given branch in the same way
-                if (Objects.equals(GBId, CBId)) {
+                if (Objects.equals(gbId, cbId)) {
                     break;
                 }
             }
@@ -676,23 +646,23 @@ public class Repository {
             // 3.2.
             // removed from both the current and given branch
             // but a file of the same name is present in the working directory
-            if (CBId == null && GBId == null) {
+            if (cbId == null && gbId == null) {
                 break;
             }
 
             // 4.
             // not present at the split point
             // present only in the current branch
-            if (SPId == null && CBId != null && GBId == null) {
+            if (spId == null && cbId != null && gbId == null) {
                 break;
             }
 
             // 5.
             // not present at the split point
             // present only in the given branch
-            if (SPId == null && GBId != null && CBId == null) {
+            if (spId == null && gbId != null && cbId == null) {
                 checkoutCommitObj(givenBranch, fileName);
-                String blobId = GBMap.get(fileName);
+                String blobId = gbMap.get(fileName);
                 stage.add(fileName, blobId);
                 break;
             }
@@ -701,7 +671,7 @@ public class Repository {
             // present at the split point
             // unmodified in the current branch
             // absent in the given branch
-            if (SPId != null && stringEqual(SPId, CBId) && GBId == null) {
+            if (spId != null && stringEqual(spId, cbId) && gbId == null) {
                 rm(fileName);
                 break;
             }
@@ -710,21 +680,21 @@ public class Repository {
             // present at the split point
             // unmodified in the given branch
             // absent in the current branch
-            if (CBId == null && SPId != null && stringEqual(SPId, GBId)) {
+            if (cbId == null && spId != null && stringEqual(spId, gbId)) {
                 break;
             }
 
-            if (!stringEqual(GBId, CBId) && !stringEqual(GBId, SPId) && !stringEqual(CBId, SPId)) {
+            if (!stringEqual(gbId, cbId) && !stringEqual(gbId, spId) && !stringEqual(cbId, spId)) {
                 // 8.
                 // in conflict
                 conflict = true;
                 String begin = "<<<<<<< HEAD\n";
-                byte[] CBContent = getContentFromId(CBId);
+                byte[] cbContent = getContentFromId(cbId);
                 String splitLine = "=======\n";
-                byte[] GBContent = getContentFromId(GBId);
+                byte[] gbContent = getContentFromId(gbId);
                 String end = ">>>>>>>";
 
-                writeContents(join(CWD, fileName), begin, CBContent, splitLine, GBContent, end);
+                writeContents(join(CWD, fileName), begin, cbContent, splitLine, gbContent, end);
                 break;
             }
         }
@@ -734,6 +704,15 @@ public class Repository {
         if (conflict) {
             System.out.println("Encountered a merge conflict.");
         }
+    }
+
+
+    private static void mergeCommit(String givenBranchName) {
+        String curBranchName = readObject(HEAD, String.class);
+        String msg = "Merged " + givenBranchName + " into " + curBranchName;
+
+        commit(msg);
+        // TODO: Deal with multi parents
     }
 
 
