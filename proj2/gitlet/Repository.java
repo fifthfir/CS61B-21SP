@@ -2,6 +2,7 @@ package gitlet;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.util.*;
 
 import static gitlet.Stage.*;
@@ -189,7 +190,9 @@ public class Repository {
         ArrayList<String> foundList = new ArrayList<>();
         findCommits(curCommitId, message, foundList);
         if (!foundList.isEmpty()) {
-            printArrayList(foundList);
+            for (String commitId : foundList) {
+                System.out.println(commitId);
+            }
         } else {
             System.out.println("Found no commit with that message.");
         }
@@ -370,7 +373,7 @@ public class Repository {
         stage.clearMap();
 
         String curBranchName = readObject(HEAD, String.class);
-        writeObject(join(BRANCH_DIR, curBranchName), join(COMMITS_DIR, commitId));
+        writeObject(join(BRANCH_DIR, curBranchName), getCommitFromName(COMMITS_DIR, commitId));
 
         stage.saveStageFile();
     }
@@ -439,7 +442,7 @@ public class Repository {
         }
 
         writeObject(branchFile, getHEADCommit());
-        writeObject(HEAD, branchName);
+//        writeObject(HEAD, branchName);
     }
 
 
@@ -554,7 +557,11 @@ public class Repository {
             exitWString("Cannot remove the current branch.");
         }
 
-        restrictedDelete(branchFile);
+        try {
+            Files.delete(branchFile.toPath());
+        } catch (IOException e) {
+            System.err.println("Unable to delete the file: " + e.getMessage());
+        }
     }
 
 

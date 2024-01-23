@@ -38,7 +38,7 @@ public class Main {
                 break;
 
             case "commit":
-                if (args.length == 1) {
+                if (args.length == 1 || args[1].isEmpty()) {
                     exitWString("Please enter a commit message.");
                 }
                 checkArgsNums(args, 2);
