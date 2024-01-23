@@ -93,6 +93,12 @@ public class Stage implements Serializable {
         }
     }
 
+    public void unremove(String fileName) {
+        if (!removingMap.contains(fileName)) {
+            removingMap.remove(fileName);
+        }
+    }
+
     public ArrayList<String> getRmMap() {
         return this.removingMap;
     }

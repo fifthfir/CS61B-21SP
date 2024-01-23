@@ -94,6 +94,8 @@ public class Repository {
         stage = readStage();
 
         stage.add(fileName);
+        stage.unremove(fileName);
+
         stage.saveStageFile();
     }
 
@@ -237,12 +239,12 @@ public class Repository {
         }
 
         if (fileStaged) {
-//            stage.rmStaging(fileName);
+            stage.rmStaging(fileName);
             stage.saveStageFile();
         }
 
         if (fileCurCommitted != null) {
-//            stage.remove(fileName);
+            stage.remove(fileName);
             restrictedDelete(join(CWD, fileName));
         }
 
