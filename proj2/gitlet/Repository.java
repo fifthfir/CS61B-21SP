@@ -187,41 +187,20 @@ public class Repository {
         Stage stage = readStage();
         assert stage != null;
 
-        String curCommitId = getHEADCommit().getCommitId();
-
         ArrayList<String> foundList = new ArrayList<>();
-        findCommits(curCommitId, message, foundList);
-        if (!foundList.isEmpty()) {
-            for (String commitId : foundList) {
+
+        for (String commitId : plainFilenamesIn(COMMITS_DIR)) {
+            Commit thisCommit = getCommitFromName(COMMITS_DIR, commitId);
+            if (thisCommit.getMessage().equals(message)) {
                 System.out.println(commitId);
+                foundList.add(commitId);
             }
-        } else {
+        }
+
+        if (foundList.isEmpty()) {
             System.out.println("Found no commit with that message.");
         }
     }
-
-    private static void findCommits(String curCommitId, String message, ArrayList<String> aList) {
-        if (Objects.equals(curCommitId, "")) {
-            return;
-        } else if (findThisCommit(curCommitId, message) == 1) {
-            aList.add(curCommitId);
-        }
-        findCommits(findParentFromId(curCommitId), message, aList);
-    }
-
-    private static Integer findThisCommit(String commitId, String message) {
-        Commit thisCommit = getCommitFromName(COMMITS_DIR, commitId);
-
-        if (Objects.equals(thisCommit.getMessage(), message)) {
-            return 1;
-        }
-        return 0;
-    }
-
-    private static String findParentFromId(String commitId) {
-        return getCommitFromName(COMMITS_DIR, commitId).getParent();
-    }
-
 
     /**
      * @param fileName  the file to remove
@@ -312,7 +291,8 @@ public class Repository {
         }
 
         Commit brCommit = readObject(branchFile, Commit.class);
-        ifAllTracked();
+        ifAllTracked(brCommit.getCommitId());
+
         removeCurCommit();
 
         // then write all files from the given commit id
@@ -354,7 +334,7 @@ public class Repository {
         List<String> commits = plainFilenamesIn(COMMITS_DIR);
         assert commits != null;
         for (String committedId : commits) {
-            if (Objects.equals(committedId, commitId)) {
+            if (committedId.equals(commitId)) {
                 return;
             }
         }
@@ -365,9 +345,9 @@ public class Repository {
         checkCommitId(commitId);
 
         Stage stage = readStage();
-        assert stage != null;
 
-        ifAllTracked();
+        ifAllTracked(commitId);
+
         removeCurCommit();
 
         HashMap<String, String> committedFileMap = getMapFromCommitId(commitId);
@@ -375,18 +355,28 @@ public class Repository {
         stage.clearMap();
 
         String curBranchName = readObject(HEAD, String.class);
+
         writeObject(join(BRANCH_DIR, curBranchName), getCommitFromName(COMMITS_DIR, commitId));
 
         stage.saveStageFile();
     }
 
-    private static void ifAllTracked() {
+    private static void ifAllTracked(String targetCommitId) {
         Commit curCommit = getHEADCommit();
+        Commit tgCommit = getCommitFromName(COMMITS_DIR, targetCommitId);
+
+        Stage stage = readStage();
         HashMap<String, String> trackedMap = curCommit.getMap();
+        HashMap<String, String> stagingMap = stage.getStagingMap();
+        HashMap<String, String> tgMap = tgCommit.getMap();
+
 
         List<String> fileNames = plainFilenamesIn(CWD);
         for (String fileName : fileNames) {
-            if (trackedMap.get(fileName) == null && !IGNORE_FILES.contains(fileName)) {
+            if (trackedMap.get(fileName) == null
+                && !IGNORE_FILES.contains(fileName)
+                && stagingMap.get(fileName) == null
+                && tgMap.get(fileName) != null) {
                 exitWString("There is an untracked file in the way; "
                     + "delete it, or add and commit it first.");
             }
