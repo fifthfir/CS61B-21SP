@@ -476,11 +476,13 @@ public class Repository {
             String fileName = entry.getKey();
             File thisFile = join(CWD, fileName);
             if (!thisFile.exists()) {  // 3
-                System.out.println(fileName);
+                System.out.print(fileName);
+                System.out.println(" (deleted)");  // changed
             } else {
                 String curBlobId = new Blob(thisFile).getBlobId();
                 if (!entry.getValue().equals(curBlobId)) {  // 2
-                    System.out.println(fileName);
+                    System.out.print(fileName);
+                    System.out.println(" (modified)");  // changed
                 }
             }
         }
@@ -493,12 +495,14 @@ public class Repository {
             File thisFile = join(CWD, fileName);
 
             if (!thisFile.exists() && !stage.getRmMap().contains(fileName)) {  // 4
-                System.out.println(fileName);
+                System.out.print(fileName);
+                System.out.println(" (deleted)");  // changed
             } else if (thisFile.exists()) {
                 String curBlobId = new Blob(thisFile).getBlobId();
                 if (!blobId.equals(curBlobId)
                     && !blobId.equals(stagingMap.get(fileName))) {  // 1
-                    System.out.println(fileName);
+                    System.out.print(fileName);
+                    System.out.println(" (modified)");  // changed
                 }
             }
         }
